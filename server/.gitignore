@@ -1,0 +1,9 @@
+node_modules
+
+# In REAL LIFE exclude your .env file from your repo!!!!
+# eg add .env to this gitignore
+
+# .env
+
+# dependencies
+/node_modules

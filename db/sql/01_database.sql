@@ -1,0 +1,4 @@
+CREATE TABLE form(
+  id SERIAL PRIMARY KEY,
+  field_1 VARCHAR(255)
+);
