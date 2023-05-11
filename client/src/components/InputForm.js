@@ -109,16 +109,28 @@ const InputForm = () => {
 
         <div className="checkbox-wrapper">
           <label>
+            <span>By submitting this form, I consent to the following:</span>
+            <p className="disclaimer-paragraph">
+              "As part of an insurance claim with enSURE, I consent and give
+              authority to enSURE and any of its related entities and agents to
+              collect, use and disclose, any medical, financial or other
+              personal information about the life assured for the purposes of
+              assessing and managing the insurance claim. I declare that all
+              medical information pertaining to me and relevant to my insurance
+              claim has been provided and disclosed to enSURE, and understand
+              that making any false or fraudulent claim could result in
+              cancellation of my policy and/or oblige me to repay any claims."
+            </p>
             <input
               type="checkbox"
               checked={isChecked}
               onChange={() => setIsChecked((prev) => !prev)}
             />
-            <span>I conesnt to the following</span>
+            <span> Check here</span>
           </label>
         </div>
 
-        <button className="btn btn-success" onClick={onSubmit}>
+        <button className="btn-success" onClick={onSubmit}>
           Add
         </button>
       </div>
