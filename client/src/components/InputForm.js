@@ -46,8 +46,8 @@ const InputForm = () => {
   }
   return (
     <Fragment>
-      <h1 className="text-center mt-5">Form</h1>
-      <div className="d-flex mt-5">
+      <h1 className="text-center mt-5">Insurance Claims Form</h1>
+      <div className="claims-form">
         <label htmlFor="policyNumber">Policy Number</label>
         <input
           id="policyNumber"
