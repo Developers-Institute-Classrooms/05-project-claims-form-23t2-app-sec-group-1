@@ -22,7 +22,7 @@ formRouter.post("/", async (req, res) => {
         VALUES ('${req.body.policy_number}', '${req.body.customer_id}','${req.body.condition_claimed_for}','${req.body.first_symptoms_date}','${req.body.symptoms_details}','${req.body.medical_service_type}','${req.body.service_provider_name}','${req.body.other_insurance_provider}','${req.body.consent}')`
     );
 
-    //res.json("hello there");
+    res.json("hello there");
   } catch (err) {
     console.error(err.message);
   }
