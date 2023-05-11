@@ -17,11 +17,11 @@ services:
             context: ./server            
         ports:
             - '5001:5000'
-        environment:        
-            - PGDATABASE=postgres            
-            - PGHOST=db             
-            - PGPASSWORD=password
-            - PGUSER=postgres
+        # environment:        
+        #     - PGDATABASE=postgres            
+        #     - PGHOST=db             
+        #     - PGPASSWORD=password
+        #     - PGUSER=postgres
         depends_on:             
             - db
         volumes:            
