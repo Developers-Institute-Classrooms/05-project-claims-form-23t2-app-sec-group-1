@@ -59,6 +59,7 @@ hr.header-divider {
   max-width: 40rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: center;
 }
 
 @media only screen and (min-width: 80rem) {

@@ -11,7 +11,6 @@ function App() {
     <Fragment>
       <div className="header">
         <header>
-          Test
           <img src={ensureLogo} alt="enSURE Logo" className="App-logo"></img>
           <hr className="header-divider" align="left"></hr>
         </header>
