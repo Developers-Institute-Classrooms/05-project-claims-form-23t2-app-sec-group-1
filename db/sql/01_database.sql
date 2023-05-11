@@ -4,7 +4,7 @@ CREATE TABLE
     policy_number INT NOT NULL,
     customer_id VARCHAR NOT NULL,
     condition_claimed_for TEXT NOT NULL,
-    first_symptoms_date DATE NOT NULL,
+    first_symptoms_date VARCHAR(255) NOT NULL,
     symptoms_details TEXT NOT NULL,
     medical_service_type VARCHAR(255) NOT NULL,
     service_provider_name VARCHAR(255) NOT NULL,
