@@ -14,6 +14,7 @@ const InputForm = () => {
   const [startDate, setStartDate] = useState(new Date());
 
   const onSubmit = async () => {
+    event.preventDefault();
     try {
       const body = {
         policy_number: policyNumber,
@@ -36,8 +37,8 @@ const InputForm = () => {
         setError(true);
         return;
       }
-
-      window.location = "/";
+      console.log(response);
+      // window.location = "/";
     } catch (err) {
       console.error(err.message);
       setError(true);
