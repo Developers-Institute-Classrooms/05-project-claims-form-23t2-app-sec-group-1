@@ -70,6 +70,7 @@ formRouter.post(
       res.json(newItem.rows[0]);
     } catch (err) {
       console.log(err);
+      console.log(err.constraint);
       res.status(400).json({ error: err.message });
     }
   }
