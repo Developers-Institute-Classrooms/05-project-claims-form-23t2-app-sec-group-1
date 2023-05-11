@@ -9,6 +9,7 @@ const InputForm = () => {
   const [serviceProviderName, setServiceProviderName] = useState("");
   const [otherInsuranceProvider, setOtherInsuranceProvider] = useState(true);
   const [isChecked, setIsChecked] = useState(false);
+  const [error, setError] = useState(false);
 
   const onSubmit = async () => {
     try {
@@ -24,16 +25,25 @@ const InputForm = () => {
         consent: isChecked,
       };
 
-      await fetch(`${process.env.REACT_APP_API_URL}/form`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/form`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
+      if (!response.ok) {
+        setError(true);
+        return;
+      }
+
+      window.location = "/";
     } catch (err) {
       console.error(err.message);
+      setError(true);
     }
   };
-
+  if (error) {
+    return <p>Oops, something went wrong!</p>;
+  }
   return (
     <Fragment>
       <h1 className="text-center mt-5">Form</h1>
