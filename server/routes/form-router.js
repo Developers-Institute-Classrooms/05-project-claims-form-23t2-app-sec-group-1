@@ -35,8 +35,6 @@ const bodyVarSchema = Joi.object().keys({
 // create a post route
 formRouter.post("/", async (req, res) => {
   try {
-    // console log type of customer_id
-    console.log(typeof req.body.customer_id);
     const {
       policy_number,
       customer_id,
@@ -56,7 +54,7 @@ formRouter.post("/", async (req, res) => {
       `INSERT INTO claims (policy_number, customer_id, condition_claimed_for,first_symptoms_date,symptoms_details,medical_service_type,service_provider_name,other_insurance_provider,consent)
         VALUES ('${policy_number}', '${customer_id}','${condition_claimed_for}','${first_symptoms_date}','${symptoms_details}','${medical_service_type}','${service_provider_name}','${other_insurance_provider}','${consent}')`
     );
-    print(newItem);
+    console.log(newItem.rows[0]);
     res.json(newItem.rows[0]);
   } catch (err) {
     console.error(err.message);
