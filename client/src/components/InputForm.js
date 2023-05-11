@@ -1,19 +1,36 @@
-import React, { Fragment, useState } from "react";
+import { React, Fragment, useState } from "react";
+import DatePicker from "react-datepicker";
 
 const InputForm = () => {
-  const [description, setDescription] = useState("");
+  const [policyNumber, setPolicyNumber] = useState("");
+  const [customerId, setCustomerId] = useState("");
+  const [conditionClaimedFor, setConditionClaimedFor] = useState("");
+  const [startDate, setStartDate] = useState(new Date());
+  const [symptomsDetails, setSymptomsDetails] = useState("");
+  const [medicalServiceType, setMedicalServiceType] = useState("");
+  const [serviceProviderName, setServiceProviderName] = useState("");
+  const [otherInsuranceProvider, setOtherInsuranceProvider] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
 
   const onSubmit = async () => {
     try {
-      const body = { description };
+      const body = {
+        policy_number: policyNumber,
+        customer_id: customerId,
+        condition_claimed_for: conditionClaimedFor,
+        first_symptoms_date: "date",
+        symptoms_details: symptomsDetails,
+        medical_service_type: medicalServiceType,
+        service_provider_name: serviceProviderName,
+        other_insurance_provider: otherInsuranceProvider,
+        consent: isChecked,
+      };
 
       await fetch(`${process.env.REACT_APP_API_URL}/form`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-
-      window.location = "/";
     } catch (err) {
       console.error(err.message);
     }
@@ -26,9 +43,65 @@ const InputForm = () => {
         <input
           type="text"
           className="form-control"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={policyNumber}
+          onChange={(e) => setPolicyNumber(e.target.value)}
         />
+        <input
+          type="text"
+          className="form-control"
+          value={customerId}
+          onChange={(e) => setCustomerId(e.target.value)}
+        />
+        <input
+          type="text"
+          className="form-control"
+          value={conditionClaimedFor}
+          onChange={(e) => setConditionClaimedFor(e.target.value)}
+        />
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+        />
+        <input
+          type="text"
+          className="form-control"
+          value={symptomsDetails}
+          onChange={(e) => setSymptomsDetails(e.target.value)}
+        />
+        <input
+          type="text"
+          className="form-control"
+          value={medicalServiceType}
+          onChange={(e) => setMedicalServiceType(e.target.value)}
+        />
+
+        <input
+          type="text"
+          className="form-control"
+          value={serviceProviderName}
+          onChange={(e) => setServiceProviderName(e.target.value)}
+        />
+
+        <select
+          className="selectBox"
+          value={otherInsuranceProvider}
+          onChange={(e) => setOtherInsuranceProvider(e.target.value)}
+        >
+          <option value="true">Yes I have another insurance provider</option>
+          <option value="false">No enSure is my only insurance provider</option>
+        </select>
+
+        <div className="checkbox-wrapper">
+          <label>
+            <input
+              type="checkbox"
+              checked={isChecked}
+              onChange={() => setIsChecked((prev) => !prev)}
+            />
+            <span>I conesnt to the following</span>
+          </label>
+        </div>
+
         <button className="btn btn-success" onClick={onSubmit}>
           Add
         </button>

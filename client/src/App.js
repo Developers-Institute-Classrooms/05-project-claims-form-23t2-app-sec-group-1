@@ -3,7 +3,7 @@ import "./App.css";
 
 //components
 
-import InputForm from "./components/InputForm";
+import InputForm from "./components/InputForm.js";
 
 function App() {
   return (
