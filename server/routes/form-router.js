@@ -52,7 +52,7 @@ formRouter.post("/", dataValidate, async (req, res) => {
     console.log(newItem.rows[0]);
     res.json(newItem.rows[0]);
   } catch (err) {
-    errorMiddleware(err, req, res);
+    errorMiddleware(err, req, res, next);
   }
 });
 

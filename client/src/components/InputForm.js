@@ -42,6 +42,7 @@ const InputForm = () => {
           return;
         }
       } else {
+        alert("Submission successfully added!");
         window.location = "/";
       }
     } catch (err) {
@@ -53,7 +54,7 @@ const InputForm = () => {
     return <p>Oops, something went wrong!</p>;
   }
   return (
-    <Fragment>
+    <form>
       <h1 className="text-center mt-5">Insurance Claims Form</h1>
       <div className="claims-form">
         <label htmlFor="policyNumber">Policy Number</label>
@@ -79,6 +80,12 @@ const InputForm = () => {
           className="form-control"
           value={conditionClaimedFor}
           onChange={(e) => setConditionClaimedFor(e.target.value)}
+        />
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          maxDate={new Date()}
+          placeholderText="Select a date after 5 days ago"
         />
         <label htmlFor="symptomDetails">Symptom Details</label>
         <input
