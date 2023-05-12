@@ -17,12 +17,15 @@ formRouter.get("/", async (req, res) => {
 formRouter.post("/", dataValidate, async (req, res) => {
   try {
     const postClaimsForm = await formRepository.postClaimsForm(req);
-    console.log({
-      timestamp: postClaimsForm.created_at,
-      route_name: "/api/form",
-      route_type: "POST",
-      claim_id: postClaimsForm.claim_id,
-    });
+
+    console.info(
+      JSON.stringify({
+        timestamp: postClaimsForm.created_at,
+        route_name: "/api/form",
+        route_type: "POST",
+        claim_id: postClaimsForm.claim_id,
+      })
+    );
     res.status(200).json(postClaimsForm);
   } catch (err) {
     errorMiddleware(err, req, res);
