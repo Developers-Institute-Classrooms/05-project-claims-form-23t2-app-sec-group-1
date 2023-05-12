@@ -29,5 +29,6 @@ CREATE TABLE
     service_provider_name VARCHAR(255) NOT NULL,
     other_insurance_provider BOOLEAN DEFAULT false,
     consent BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT NOW ()
+    created_at TIMESTAMP DEFAULT NOW (),
+    CONSTRAINT stop_duplicates UNIQUE (policy_number, customer_id, condition_claimed_for,first_symptoms_date,symptoms_details,medical_service_type,service_provider_name,other_insurance_provider,consent)
   );
