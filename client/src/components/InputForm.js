@@ -42,7 +42,16 @@ const InputForm = () => {
           return;
         }
       } else {
-        window.location = "/";
+        setPolicyNumber("");
+        setCustomerId("");
+        setConditionClaimedFor("");
+        setSymptomsDetails("");
+        setMedicalServiceType("");
+        setServiceProviderName("");
+        setOtherInsuranceProvider(true);
+        setIsChecked(false);
+        setError(false);
+        setStartDate(new Date());
       }
     } catch (err) {
       console.error(err.message);
