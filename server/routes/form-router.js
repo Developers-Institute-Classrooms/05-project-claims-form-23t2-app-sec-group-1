@@ -7,7 +7,6 @@ const formRepository = require("./form-router.repository");
 formRouter.get("/", async (req, res) => {
   try {
     const allClaims = await formRepository.allClaims();
-    console.log(allClaims)
     res.json(allClaims);
   } catch (err) {
     console.error(err.message);
@@ -17,9 +16,13 @@ formRouter.get("/", async (req, res) => {
 // create a post route
 formRouter.post("/", dataValidate, async (req, res) => {
   try {
-    console.log("postClaimsForm called");
     const postClaimsForm = await formRepository.postClaimsForm(req);
-    console.log(postClaimsForm)
+    console.log({
+      timestamp: postClaimsForm.created_at,
+      route_name: "/api/form",
+      route_type: "POST",
+      claim_id: postClaimsForm.claim_id,
+    });
     res.status(200).json(postClaimsForm);
   } catch (err) {
     errorMiddleware(err, req, res);

@@ -15,8 +15,7 @@ module.exports = {
     } = req.body;
     const newItem = await pool.query(
       `INSERT INTO claims (policy_number, customer_id, condition_claimed_for,first_symptoms_date,symptoms_details,medical_service_type,service_provider_name,other_insurance_provider,consent)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-                RETURNING customer_id, created_at`,
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
       [
         policy_number,
         customer_id,

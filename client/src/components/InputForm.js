@@ -96,7 +96,6 @@ const InputForm = () => {
         selected={startDate}
         onChange={(date) => setStartDate(date)}
         maxDate={new Date()}
-        placeholderText="Select a date after 5 days ago"
       />
 
       <label htmlFor="symptomDetails">Symptom Details</label>
