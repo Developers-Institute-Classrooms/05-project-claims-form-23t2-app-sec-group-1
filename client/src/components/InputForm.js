@@ -53,93 +53,99 @@ const InputForm = () => {
     return <p>Oops, something went wrong!</p>;
   }
   return (
-    <form className="grid" onSubmit={onSubmit}>
-      <h1 className="text-center mt-5">Form</h1>
-
-      <label htmlFor="policyNumber">Policy Number</label>
-      <input
-        id="policyNumber"
-        type="text"
-        className="form-control"
-        value={policyNumber}
-        onChange={(e) => setPolicyNumber(e.target.value)}
-        required
-      />
-      <label htmlFor="customerId">Customer Id</label>
-      <input
-        id="customerId"
-        type="text"
-        className="form-control"
-        value={customerId}
-        onChange={(e) => setCustomerId(e.target.value)}
-        required
-      />
-      <label htmlFor="conditionClaimedFor">Condition Claimed For</label>
-      <input
-        id="conditionClaimedFor"
-        type="text"
-        className="form-control"
-        value={conditionClaimedFor}
-        onChange={(e) => setConditionClaimedFor(e.target.value)}
-        required
-      />
-      <DatePicker
-        selected={startDate}
-        onChange={(date) => setStartDate(date)}
-        maxDate={new Date()}
-        placeholderText="Select a date after 5 days ago"
-      />
-
-      <label htmlFor="symptomDetails">Symptom Details</label>
-      <input
-        id="symptomDetails"
-        type="text"
-        className="form-control"
-        value={symptomsDetails}
-        onChange={(e) => setSymptomsDetails(e.target.value)}
-        required
-      />
-      <label htmlFor="medicalServiceType">Medical Service Type</label>
-      <input
-        id="medicalServiceType"
-        type="text"
-        className="form-control"
-        value={medicalServiceType}
-        onChange={(e) => setMedicalServiceType(e.target.value)}
-        required
-      />
-      <label htmlFor="serviceProviderName">Service Provider Name</label>
-      <input
-        id="serviceProviderName"
-        type="text"
-        className="form-control"
-        value={serviceProviderName}
-        onChange={(e) => setServiceProviderName(e.target.value)}
-        required
-      />
-      <label htmlFor="otherInsuranceProvider">Other Insurance Provider</label>
-      <select
-        id="otherInsuranceProvider"
-        className="selectBox"
-        value={otherInsuranceProvider}
-        onChange={(e) => setOtherInsuranceProvider(e.target.value)}
-      >
-        <option value="true">Yes I have another insurance provider</option>
-        <option value="false">No enSure is my only insurance provider</option>
-      </select>
-
-      <div className="checkbox-wrapper">
-        <label>
-          <input
-            type="checkbox"
-            checked={isChecked}
-            onChange={() => setIsChecked((prev) => !prev)}
-            required
-          />
-          <span>I consent to the following</span>
+    <Fragment>
+      <h1 className="text-center mt-5">Insurance Claims Form</h1>
+      <div className="claims-form">
+        <label htmlFor="policyNumber">Policy Number</label>
+        <input
+          id="policyNumber"
+          type="text"
+          className="form-control"
+          value={policyNumber}
+          onChange={(e) => setPolicyNumber(e.target.value)}
+        />
+        <label htmlFor="customerId">Customer Id</label>
+        <input
+          id="customerId"
+          type="text"
+          className="form-control"
+          value={customerId}
+          onChange={(e) => setCustomerId(e.target.value)}
+        />
+        <label htmlFor="conditionClaimedFor">Condition Claimed For</label>
+        <input
+          id="conditionClaimedFor"
+          type="text"
+          className="form-control"
+          value={conditionClaimedFor}
+          onChange={(e) => setConditionClaimedFor(e.target.value)}
+        />
+        <label htmlFor="symptomDetails">Symptom Details</label>
+        <input
+          id="symptomDetails"
+          type="text"
+          className="form-control"
+          value={symptomsDetails}
+          onChange={(e) => setSymptomsDetails(e.target.value)}
+        />
+        <label htmlFor="medicalServiceType">Medical Service Type</label>
+        <input
+          id="medicalServiceType"
+          type="text"
+          className="form-control"
+          value={medicalServiceType}
+          onChange={(e) => setMedicalServiceType(e.target.value)}
+        />
+        <label htmlFor="serviceProviderName">Service Provider Name</label>
+        <input
+          id="serviceProviderName"
+          type="text"
+          className="form-control"
+          value={serviceProviderName}
+          onChange={(e) => setServiceProviderName(e.target.value)}
+        />
+        <label
+          htmlFor="otherInsuranceProvider"
+          className="otherInsuranceProvider"
+        >
+          Other Insurance Provider
         </label>
-      </div>
+        <select
+          id="otherInsuranceProvider"
+          className="selectBox"
+          value={otherInsuranceProvider}
+          onChange={(e) => setOtherInsuranceProvider(e.target.value)}
+        >
+          <option value="true">Yes I have another insurance provider</option>
+          <option value="false">No enSure is my only insurance provider</option>
+        </select>
 
+        <div className="checkbox-wrapper">
+          <label>
+            <span>By submitting this form, I consent to the following:</span>
+            <p className="disclaimer-paragraph">
+              "As part of an insurance claim with enSURE, I consent and give
+              authority to enSURE and any of its related entities and agents to
+              collect, use and disclose, any medical, financial or other
+              personal information about the life assured for the purposes of
+              assessing and managing the insurance claim. I declare that all
+              medical information pertaining to me and relevant to my insurance
+              claim has been provided and disclosed to enSURE, and understand
+              that making any false or fraudulent claim could result in
+              cancellation of my policy and/or oblige me to repay any claims."
+            </p>
+            <input
+              type="checkbox"
+              checked={isChecked}
+              onChange={() => setIsChecked((prev) => !prev)}
+            />
+            <span> I consent</span>
+          </label>
+        </div>
+        <button className="btn-success" onClick={onSubmit}>
+          Submit Form
+        </button>
+      </div>
       <input type="submit" />
     </form>
   );
