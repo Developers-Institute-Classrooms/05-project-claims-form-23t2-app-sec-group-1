@@ -5,6 +5,7 @@ const dataValidate = require("../middleware/dataValidation");
 const errorMiddleware = require("../middleware/errorHandling");
 
 const { celebrate, Joi, errors, Segments } = require("celebrate");
+const e = require("express");
 
 formRouter.get("/", async (req, res) => {
   console.log("hot reloaded!");
@@ -51,14 +52,11 @@ formRouter.post("/", dataValidate, async (req, res) => {
     console.log(newItem.rows[0]);
     res.json(newItem.rows[0]);
   } catch (err) {
-    errorMiddleware(err);
+    errorMiddleware(err, req, res);
     // next(err);
   }
 });
 
-//error handling middleware
-// formRouter.use(errorMiddleware(err));
-
-// formRouter.use(errors());
+formRouter.use(errors());
 
 module.exports = formRouter;
