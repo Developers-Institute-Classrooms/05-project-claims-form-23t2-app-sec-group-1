@@ -1,6 +1,11 @@
 const express = require("express");
 const pool = require("../db");
 const formRouter = express.Router();
+const dataValidate = require("../middleware/dataValidation");
+const errorMiddleware = require("../middleware/errorHandling");
+
+const { celebrate, Joi, errors, Segments } = require("celebrate");
+const e = require("express");
 
 formRouter.get("/", async (req, res) => {
   console.log("hot reloaded!");
@@ -13,19 +18,44 @@ formRouter.get("/", async (req, res) => {
 });
 
 // create a post route
-formRouter.post("/", async (req, res) => {
+formRouter.post("/", dataValidate, async (req, res) => {
+  console.log("api hit");
+  const {
+    policy_number,
+    customer_id,
+    condition_claimed_for,
+    first_symptoms_date,
+    symptoms_details,
+    medical_service_type,
+    service_provider_name,
+    other_insurance_provider,
+    consent,
+  } = req.body;
   try {
-    console.log(req.body);
-    // const { name, email, message } = req.body;
     const newItem = await pool.query(
-      `INSERT INTO Claims (policy_number, customer_id, condition_claimed_for,first_symptoms_date,symptoms_details,medical_service_type,service_provider_name,other_insurance_provider,consent)
-        VALUES ('$1','$2', '$3', '$4', '$5', '$6','$7','$8','$9'),[]`
+      `INSERT INTO claims (policy_number, customer_id, condition_claimed_for,first_symptoms_date,symptoms_details,medical_service_type,service_provider_name,other_insurance_provider,consent)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          RETURNING customer_id`,
+      [
+        policy_number,
+        customer_id,
+        condition_claimed_for,
+        first_symptoms_date,
+        symptoms_details,
+        medical_service_type,
+        service_provider_name,
+        other_insurance_provider,
+        consent,
+      ]
     );
 
-    res.json("hello there");
+    console.log(newItem.rows[0]);
+    res.json(newItem.rows[0]);
   } catch (err) {
-    console.error(err.message);
+    errorMiddleware(err, req, res);
   }
 });
+
+formRouter.use(errors());
 
 module.exports = formRouter;

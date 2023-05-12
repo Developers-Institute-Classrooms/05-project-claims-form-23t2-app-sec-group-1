@@ -1,5 +1,6 @@
-import React, { Fragment, useState } from "react";
-
+import React, { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 const InputForm = () => {
   const [policyNumber, setPolicyNumber] = useState("");
   const [customerId, setCustomerId] = useState("");
@@ -10,14 +11,16 @@ const InputForm = () => {
   const [otherInsuranceProvider, setOtherInsuranceProvider] = useState(true);
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState(false);
+  const [startDate, setStartDate] = useState(new Date());
 
-  const onSubmit = async () => {
+  const onSubmit = async (event) => {
+    event.preventDefault();
     try {
       const body = {
         policy_number: policyNumber,
         customer_id: customerId,
         condition_claimed_for: conditionClaimedFor,
-        first_symptoms_date: "date",
+        first_symptoms_date: startDate,
         symptoms_details: symptomsDetails,
         medical_service_type: medicalServiceType,
         service_provider_name: serviceProviderName,
@@ -31,11 +34,16 @@ const InputForm = () => {
         body: JSON.stringify(body),
       });
       if (!response.ok) {
-        setError(true);
-        return;
+        const error = await response.json();
+        if (error.error === "duplicate") {
+          alert("Duplicate entry");
+        } else {
+          setError(true);
+          return;
+        }
+      } else {
+        window.location = "/";
       }
-
-      window.location = "/";
     } catch (err) {
       console.error(err.message);
       setError(true);
@@ -134,12 +142,12 @@ const InputForm = () => {
             <span> I consent</span>
           </label>
         </div>
-
         <button className="btn-success" onClick={onSubmit}>
           Submit Form
         </button>
       </div>
-    </Fragment>
+      <input type="submit" />
+    </form>
   );
 };
 

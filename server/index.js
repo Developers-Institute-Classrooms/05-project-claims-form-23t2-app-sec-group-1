@@ -3,9 +3,9 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const formRouter = require("./routes/form-router");
-
+const BodyParser = require("body-parser");
+app.use(BodyParser.json());
 app.use(cors());
-app.use(express.json());
 
 app.use("/api/form", formRouter);
 
