@@ -96,7 +96,12 @@ const InputForm = () => {
           value={serviceProviderName}
           onChange={(e) => setServiceProviderName(e.target.value)}
         />
-        <label htmlFor="otherInsuranceProvider">Other Insurance Provider</label>
+        <label
+          htmlFor="otherInsuranceProvider"
+          className="otherInsuranceProvider"
+        >
+          Other Insurance Provider
+        </label>
         <select
           id="otherInsuranceProvider"
           className="selectBox"
@@ -126,12 +131,12 @@ const InputForm = () => {
               checked={isChecked}
               onChange={() => setIsChecked((prev) => !prev)}
             />
-            <span> Check here</span>
+            <span> I consent</span>
           </label>
         </div>
 
         <button className="btn-success" onClick={onSubmit}>
-          Add
+          Submit Form
         </button>
       </div>
     </Fragment>

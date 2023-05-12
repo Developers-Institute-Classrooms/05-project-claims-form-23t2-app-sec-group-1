@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import "./index.css";
 import ensureLogo from "./images/ensure-logo.svg";
+import ensureSymbol from "./images/ensure-symbol.svg";
 
 //components
 
@@ -12,15 +13,22 @@ function App() {
       <div className="header">
         <header>
           <img src={ensureLogo} alt="enSURE Logo" className="App-logo"></img>
-          <hr className="header-divider" align="left"></hr>
+          <hr className="primary-divider" align="left"></hr>
         </header>
       </div>
       <div className="primary-container">
         <InputForm />
       </div>
       <div className="footer">
-        <img src={ensureLogo} alt="enSURE Logo" className="Footer-logo"></img>
-        <p>Keeping the unexpected, uncomplicated</p>
+        <footer>
+          <hr className="primary-divider" align="right"></hr>
+          <img
+            src={ensureSymbol}
+            alt="enSURE Symbol"
+            className="App-logo"
+          ></img>
+          <p>Keeping the unexpected, uncomplicated</p>
+        </footer>
       </div>
     </Fragment>
   );
