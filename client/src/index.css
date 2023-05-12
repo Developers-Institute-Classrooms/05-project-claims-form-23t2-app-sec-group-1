@@ -19,7 +19,7 @@ code {
 .claims-form {
   width: 80%;
   padding: 2rem;
-  border: 2px solid #ff4d00;
+  border: 0.2rem solid #ff4d00;
   border-radius: 2rem;
   margin-left: auto;
   margin-right: auto;
@@ -53,7 +53,7 @@ p.disclaimer-paragraph {
   border-color: black;
   padding: 0.5rem;
   border-radius: 1rem;
-  border: 1px solid black;
+  border: 0.1rem solid black;
   font-weight: 500;
 }
 
