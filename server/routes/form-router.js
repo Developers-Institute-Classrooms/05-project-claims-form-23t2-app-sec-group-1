@@ -28,7 +28,7 @@ formRouter.post("/", dataValidate, async (req, res) => {
     );
     res.status(200).json(postClaimsForm);
   } catch (err) {
-    errorMiddleware(err, req, res);
+    errorMiddleware(err, req, res, next);
   }
 });
 
