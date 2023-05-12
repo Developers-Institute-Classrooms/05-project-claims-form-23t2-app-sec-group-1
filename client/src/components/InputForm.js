@@ -13,7 +13,7 @@ const InputForm = () => {
   const [error, setError] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
 
-  const onSubmit = async () => {
+  const onSubmit = async (event) => {
     event.preventDefault();
     try {
       const body = {
@@ -34,11 +34,16 @@ const InputForm = () => {
         body: JSON.stringify(body),
       });
       if (!response.ok) {
-        setError(true);
-        return;
+        const error = await response.json();
+        if (error.error === "duplicate") {
+          alert("Duplicate entry");
+        } else {
+          setError(true);
+          return;
+        }
+      } else {
+        window.location = "/";
       }
-      console.log(response);
-      // window.location = "/";
     } catch (err) {
       console.error(err.message);
       setError(true);

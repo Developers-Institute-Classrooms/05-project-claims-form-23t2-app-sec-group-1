@@ -1,6 +1,8 @@
 const express = require("express");
 const pool = require("../db");
 const formRouter = express.Router();
+const dataValidate = require("../middleware/dataValidation");
+const errorMiddleware = require("../middleware/errorHandling");
 
 const { celebrate, Joi, errors, Segments } = require("celebrate");
 
@@ -15,67 +17,48 @@ formRouter.get("/", async (req, res) => {
 });
 
 // create a post route
-formRouter.post(
-  "/",
-  celebrate({
-    [Segments.BODY]: Joi.object().keys({
-      policy_number: Joi.string()
-        .pattern(/^\d{8}$/)
-        .required()
-        .messages({
-          "string.pattern.base": "Policy number must be 8 digits long",
-        }),
-      customer_id: Joi.string().required(),
-      condition_claimed_for: Joi.string().required(),
-      first_symptoms_date: Joi.date().iso().required(),
-      symptoms_details: Joi.string().required(),
-      medical_service_type: Joi.string().required(),
-      service_provider_name: Joi.string().required(),
-      other_insurance_provider: Joi.boolean().default(false),
-      consent: Joi.boolean().default(false),
-    }),
-  }),
-  async (req, res) => {
-    console.log("api hit");
-    const {
-      policy_number,
-      customer_id,
-      condition_claimed_for,
-      first_symptoms_date,
-      symptoms_details,
-      medical_service_type,
-      service_provider_name,
-      other_insurance_provider,
-      consent,
-    } = req.body;
-    try {
-      const newItem = await pool.query(
-        `INSERT INTO claims (policy_number, customer_id, condition_claimed_for,first_symptoms_date,symptoms_details,medical_service_type,service_provider_name,other_insurance_provider,consent)
+formRouter.post("/", dataValidate, async (req, res) => {
+  console.log("api hit");
+  const {
+    policy_number,
+    customer_id,
+    condition_claimed_for,
+    first_symptoms_date,
+    symptoms_details,
+    medical_service_type,
+    service_provider_name,
+    other_insurance_provider,
+    consent,
+  } = req.body;
+  try {
+    const newItem = await pool.query(
+      `INSERT INTO claims (policy_number, customer_id, condition_claimed_for,first_symptoms_date,symptoms_details,medical_service_type,service_provider_name,other_insurance_provider,consent)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           RETURNING customer_id`,
-        [
-          policy_number,
-          customer_id,
-          condition_claimed_for,
-          first_symptoms_date,
-          symptoms_details,
-          medical_service_type,
-          service_provider_name,
-          other_insurance_provider,
-          consent,
-        ]
-      );
+      [
+        policy_number,
+        customer_id,
+        condition_claimed_for,
+        first_symptoms_date,
+        symptoms_details,
+        medical_service_type,
+        service_provider_name,
+        other_insurance_provider,
+        consent,
+      ]
+    );
 
-      console.log(newItem.rows[0]);
-      res.json(newItem.rows[0]);
-    } catch (err) {
-      console.log(err);
-      console.log(err.constraint);
-      res.status(400).json({ error: err.message });
-    }
+    console.log(newItem.rows[0]);
+    res.json(newItem.rows[0]);
+  } catch (err) {
+    errorMiddleware(err);
+    // next(err);
   }
-);
+});
 
-formRouter.use(errors());
+//error handling middleware
+// formRouter.use(errorMiddleware(err));
+
+// formRouter.use(errors());
 
 module.exports = formRouter;
