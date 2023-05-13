@@ -8,7 +8,9 @@ formRouter.get("/", async (req, res) => {
   try {
     const allClaims = await formRepository.allClaims();
     res.json(allClaims);
-  } catch (err) { console.log(err)} 
+  } catch (err) {
+    next(err);
+  }
 });
 
 // create a post route
