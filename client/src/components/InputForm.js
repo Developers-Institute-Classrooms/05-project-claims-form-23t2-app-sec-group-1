@@ -52,7 +52,7 @@ const InputForm = () => {
           alert("Duplicate Entry, You have already filed this claim.");
           return resetForm();
         }
-        if (error.error === "Validation failed") {
+        if (error.message === "Validation failed") {
           alert("Validation Failed, Please check your details and try again");
           return resetForm();
         } else {
