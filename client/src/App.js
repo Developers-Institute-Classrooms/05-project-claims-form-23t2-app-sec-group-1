@@ -25,9 +25,9 @@ function App() {
           <img
             src={ensureSymbol}
             alt="enSURE Symbol"
-            className="App-logo"
+            className="App-icon"
           ></img>
-          <p>Keeping the unexpected, uncomplicated</p>
+          <p className="footerText">Keeping the unexpected, uncomplicated</p>
         </footer>
       </div>
     </Fragment>
