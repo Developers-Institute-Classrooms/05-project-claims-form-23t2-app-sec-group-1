@@ -71,7 +71,7 @@ const InputForm = () => {
     return <p>Oops, something went wrong!</p>;
   }
   return (
-    <form>
+    <form onSubmit={onSubmit}>
       <h1 className="text-center mt-5">Insurance Claims Form</h1>
       <div className="claims-form">
         <label htmlFor="policyNumber">Policy Number</label>
@@ -81,6 +81,7 @@ const InputForm = () => {
           className="form-control"
           value={policyNumber}
           onChange={(e) => setPolicyNumber(e.target.value)}
+          required
         />
         <label htmlFor="customerId">Customer Id</label>
         <input
@@ -89,6 +90,7 @@ const InputForm = () => {
           className="form-control"
           value={customerId}
           onChange={(e) => setCustomerId(e.target.value)}
+          required
         />
         <label htmlFor="conditionClaimedFor">Condition Claimed For</label>
         <input
@@ -97,6 +99,7 @@ const InputForm = () => {
           className="form-control"
           value={conditionClaimedFor}
           onChange={(e) => setConditionClaimedFor(e.target.value)}
+          required
         />
         <DatePicker
           selected={startDate}
@@ -110,6 +113,7 @@ const InputForm = () => {
           className="form-control"
           value={symptomsDetails}
           onChange={(e) => setSymptomsDetails(e.target.value)}
+          required
         />
         <label htmlFor="medicalServiceType">Medical Service Type</label>
         <input
@@ -118,6 +122,7 @@ const InputForm = () => {
           className="form-control"
           value={medicalServiceType}
           onChange={(e) => setMedicalServiceType(e.target.value)}
+          required
         />
         <label htmlFor="serviceProviderName">Service Provider Name</label>
         <input
@@ -126,6 +131,7 @@ const InputForm = () => {
           className="form-control"
           value={serviceProviderName}
           onChange={(e) => setServiceProviderName(e.target.value)}
+          required
         />
         <label
           htmlFor="otherInsuranceProvider"
@@ -161,13 +167,12 @@ const InputForm = () => {
               type="checkbox"
               checked={isChecked}
               onChange={() => setIsChecked((prev) => !prev)}
+              required
             />
             <span> I consent</span>
           </label>
         </div>
-        <button className="btn btn-success" onClick={onSubmit}>
-          Submit
-        </button>
+        <input className="btn btn-success" type="submit" />
       </div>
     </form>
   );
