@@ -5,6 +5,9 @@ jest.mock("../db");
 const pool = require("../db");
 
 describe("POST /", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   it("should create a new item and return it", async () => {
     pool.query.mockResolvedValueOnce({
       rows: [
@@ -57,6 +60,4 @@ describe("POST /", () => {
 
     expect(response.status).toBe(400);
   });
-
-  
 });
