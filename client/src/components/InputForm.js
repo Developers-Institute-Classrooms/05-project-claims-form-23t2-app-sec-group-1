@@ -48,19 +48,22 @@ const InputForm = () => {
       });
       if (!response.ok) {
         const error = await response.json();
-        if (error.error === "duplicate") {
-          alert("Duplicate entry");
-          resetForm();
+        if (error.error === "Duplicate Entry") {
+          alert("Duplicate Entry, You have already filed this claim.");
+          return resetForm();
+        }
+        if (error.error === "Validation failed") {
+          alert("Validation Failed, Please check your details and try again");
+          return resetForm();
         } else {
           setError(true);
           return;
         }
       } else {
-        alert("Submission successfully added!");
-        resetForm();
+        alert("Submission Successfully Added!");
+        return resetForm();
       }
     } catch (err) {
-      console.error(err.message);
       setError(true);
     }
   };

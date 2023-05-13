@@ -4,10 +4,7 @@ const validateInput = celebrate({
   [Segments.BODY]: Joi.object().keys({
     policy_number: Joi.string()
       .pattern(/^\d{8}$/)
-      .required()
-      .messages({
-        "string.pattern.base": "Policy number must be 8 digits long",
-      }),
+      .required(),
     customer_id: Joi.string().required(),
     condition_claimed_for: Joi.string().required(),
     first_symptoms_date: Joi.date().iso().required(),

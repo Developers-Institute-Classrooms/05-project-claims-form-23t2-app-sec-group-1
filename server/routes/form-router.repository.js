@@ -31,7 +31,7 @@ module.exports = {
       );
       return newItem.rows[0];
     } catch (err) {
-      next(err);
+      throw err
     }
   },
   allClaims: async () => {
