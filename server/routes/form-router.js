@@ -1,7 +1,7 @@
 const express = require("express");
 const formRouter = express.Router();
 const dataValidate = require("../middleware/dataValidation");
-const errorMiddleware = require("../middleware/errorHandling");
+
 const formRepository = require("./form-router.repository");
 
 formRouter.get("/", async (req, res) => {
@@ -14,21 +14,25 @@ formRouter.get("/", async (req, res) => {
 });
 
 // create a post route
-formRouter.post("/", dataValidate, async (req, res) => {
+formRouter.post("/", dataValidate, async (req, res, next) => {
   try {
-    const postClaimsForm = await formRepository.postClaimsForm(req);
+    const postClaimsForm = await formRepository.postClaimsForm(req, res, next);
 
-    console.info(
-      JSON.stringify({
-        timestamp: postClaimsForm.created_at,
-        route_name: "/api/form",
-        route_type: "POST",
-        claim_id: postClaimsForm.claim_id,
-      })
-    );
+    console.log(postClaimsForm);
+    // if the request is successful, log the following to the console:
+    // if ((await postClaimsForm.error) == !true) {
+    //   console.info(
+    //     JSON.stringify({
+    //       timestamp: postClaimsForm.created_at,
+    //       route_name: "/api/form",
+    //       route_type: "POST",
+    //       claim_id: postClaimsForm.claim_id,
+    //     })
+    //   );
+    // }
     res.status(200).json(postClaimsForm);
   } catch (err) {
-    errorMiddleware(err, req, res, next);
+    next(err);
   }
 });
 

@@ -13,6 +13,19 @@ const InputForm = () => {
   const [error, setError] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
 
+  const resetForm = () => {
+    setPolicyNumber("");
+    setCustomerId("");
+    setConditionClaimedFor("");
+    setSymptomsDetails("");
+    setMedicalServiceType("");
+    setServiceProviderName("");
+    setOtherInsuranceProvider(true);
+    setIsChecked(false);
+    setError(false);
+    setStartDate(new Date());
+  };
+
   const onSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -37,22 +50,14 @@ const InputForm = () => {
         const error = await response.json();
         if (error.error === "duplicate") {
           alert("Duplicate entry");
+          resetForm();
         } else {
           setError(true);
           return;
         }
       } else {
         alert("Submission successfully added!");
-        setPolicyNumber("");
-        setCustomerId("");
-        setConditionClaimedFor("");
-        setSymptomsDetails("");
-        setMedicalServiceType("");
-        setServiceProviderName("");
-        setOtherInsuranceProvider(true);
-        setIsChecked(false);
-        setError(false);
-        setStartDate(new Date());
+        resetForm();
       }
     } catch (err) {
       console.error(err.message);
