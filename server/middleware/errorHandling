@@ -1,12 +1,8 @@
 const errorMiddleware = (err, req, res, next) => {
-  console.log(err);
-  console.log(err.constraint);
   if (err.code === "23505") {
-    res.status(400).json({ error: "duplicate" });
+    res.status(400).json({ error: "Duplicate Entry" });
   } else {
-    res
-      .status(err.status || 500)
-      .json({ error: err.message || "Something went wrong" });
+    next(err);
   }
 };
 
