@@ -13,6 +13,19 @@ const InputForm = () => {
   const [error, setError] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
 
+  const resetForm = () => {
+    setPolicyNumber("");
+    setCustomerId("");
+    setConditionClaimedFor("");
+    setSymptomsDetails("");
+    setMedicalServiceType("");
+    setServiceProviderName("");
+    setOtherInsuranceProvider(true);
+    setIsChecked(false);
+    setError(false);
+    setStartDate(new Date());
+  };
+
   const onSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -35,27 +48,22 @@ const InputForm = () => {
       });
       if (!response.ok) {
         const error = await response.json();
-        if (error.error === "duplicate") {
-          alert("Duplicate entry");
+        if (error.error === "Duplicate Entry") {
+          alert("Duplicate Entry, You have already filed this claim.");
+          return resetForm();
+        }
+        if (error.message === "Validation failed") {
+          alert("Validation Failed, Please check your details and try again");
+          return resetForm();
         } else {
           setError(true);
           return;
         }
       } else {
-        alert("Submission successfully added!");
-        setPolicyNumber("");
-        setCustomerId("");
-        setConditionClaimedFor("");
-        setSymptomsDetails("");
-        setMedicalServiceType("");
-        setServiceProviderName("");
-        setOtherInsuranceProvider(true);
-        setIsChecked(false);
-        setError(false);
-        setStartDate(new Date());
+        alert("Submission Successfully Added!");
+        return resetForm();
       }
     } catch (err) {
-      console.error(err.message);
       setError(true);
     }
   };
