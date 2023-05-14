@@ -45,9 +45,9 @@ describe("POST /", () => {
     expect(response.body).toHaveProperty("customer_id", newItem.customer_id);
   });
 
-  it("should return 500 when the request body is invalid", async () => {
+  it("should return 400 when the request body is invalid", async () => {
     const response = await request(app).post("/api/form").send({
-      policy_number: "1234F678",
+      policy_number: "abcdefgh",
       customer_id: "CUST001",
       condition_claimed_for: "Back pain",
       first_symptoms_date: "2023-05-01",
@@ -59,5 +59,20 @@ describe("POST /", () => {
     });
 
     expect(response.status).toBe(400);
+  });
+  it("should return 500 when the data base is non functional", async () => {
+    const response = await request(app).post("/api/form").send({
+      policy_number: "12345678",
+      customer_id: "CUST001",
+      condition_claimed_for: "Back pain",
+      first_symptoms_date: "2023-05-01",
+      symptoms_details: "Severe pain in lower back",
+      medical_service_type: "Physical therapy",
+      service_provider_name: "ABC Medical Center",
+      other_insurance_provider: false,
+      consent: true,
+    });
+
+    expect(response.status).toBe(500);
   });
 });
