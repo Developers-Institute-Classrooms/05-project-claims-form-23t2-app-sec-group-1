@@ -60,7 +60,14 @@ const InputForm = () => {
     }
   };
   if (error) {
-    return <p>Oops, something went wrong!</p>;
+    return (
+      <div className="claims-form">
+        <p className="errorMessage">
+          Oops, something went wrong! Please refresh this page to re-fill the
+          claim form.
+        </p>
+      </div>
+    );
   }
   return (
     <form className="claims-form" onSubmit={onSubmit}>
