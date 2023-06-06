@@ -19,7 +19,7 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE
   Claims (
     claim_id BIGINT DEFAULT unique_random() PRIMARY KEY,
-    status VARCHAR(255) DEFAULT 'submitted',
+    status ENUM('submitted', 'in progress', 'approved', 'denied') DEFAULT 'submitted',
     policy_number CHAR(8) CHECK (policy_number SIMILAR TO '[0-9]{8}'),
     customer_id VARCHAR NOT NULL,
     condition_claimed_for TEXT NOT NULL,
