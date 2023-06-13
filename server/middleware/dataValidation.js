@@ -1,7 +1,7 @@
 const { celebrate, Segments, Joi } = require("celebrate");
 
 const validateInput = celebrate({
-  [Segments.BODY]: Joi.object().keys({
+  [ Segments.BODY ]: Joi.object().keys({
     policy_number: Joi.string()
       .pattern(/^\d{8}$/)
       .required(),

@@ -1,5 +1,4 @@
 const crypto = require("crypto");
-
 // Encoding Middleware
 const encodingMiddleware = (req, res, next) => {
     const body = req.body;
@@ -12,31 +11,33 @@ const encodingMiddleware = (req, res, next) => {
 };
 
 // Encryption Middleware
-const encryptionMiddleware = (key) => {
-    return (req, res, next) => {
-        const algorithm = "aes-256-cbc";
-        const iv = crypto.randomBytes(16);
-        const cipher = crypto.createCipheriv(algorithm, key, iv);
+const encryptionMiddleware = (req, res, next) => {
+    const algorithm = "aes-256-cbc";
+    const key = crypto.randomBytes(32);
+    const iv = crypto.randomBytes(16);
 
-        let encryptedData = "";
-        cipher.on("readable", () => {
-            let chunk;
-            while ((chunk = cipher.read()) !== null) {
-                encryptedData += chunk.toString("hex");
-            }
-        });
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
 
-        cipher.on("end", () => {
-            req.encryptedData = encryptedData;
-            next();
-        });
+    let encryptedData = "";
+    cipher.on("readable", () => {
+        let chunk;
+        while ((chunk = cipher.read()) !== null) {
+            encryptedData += chunk.toString("hex");
+        }
+    });
 
-        cipher.write(JSON.stringify(req.body));
-        cipher.end();
-    };
+    cipher.on("end", () => {
+        req.encryptedData = encryptedData;
+        next();
+    });
+
+    cipher.write(JSON.stringify(req.body));
+    cipher.end();
 };
 
 module.exports = {
+    checkJwt,
+    checkScopes,
     encodingMiddleware,
     encryptionMiddleware,
 };

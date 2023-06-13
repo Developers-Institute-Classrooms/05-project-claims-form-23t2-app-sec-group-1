@@ -1,13 +1,9 @@
 const express = require("express");
 const formRouter = express.Router();
 const dataValidate = require("../middleware/dataValidation");
-const {
-  encodingMiddleware,
-  encryptionMiddleware,
-} = require("./encryptionMiddleware");
-const crypto = require("crypto");
 const { auth } = require("express-oauth2-jwt-bearer");
 const formRepository = require("./form-router.repository");
+const crypto = require("crypto");
 
 const checkJwt = auth();
 
@@ -17,6 +13,45 @@ const checkPermissions = (req, res, next) => {
   }
   next();
 };
+
+// Encoding Middleware
+const encodingMiddleware = (req, res, next) => {
+  const body = req.body;
+  for (const key in body) {
+    if (typeof body[ key ] === "string") {
+      body[ key ] = Buffer.from(body[ key ]).toString("base64");
+    }
+  }
+  next();
+};
+
+// Encryption Middleware
+const encryptionMiddleware = (req, res, next) => {
+  const algorithm = "aes-256-cbc";
+  const key = crypto.randomBytes(32);
+  const iv = crypto.randomBytes(16);
+
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+
+  let encryptedData = "";
+  cipher.on("readable", () => {
+    let chunk;
+    while ((chunk = cipher.read()) !== null) {
+      encryptedData += chunk.toString("hex");
+    }
+  });
+
+  cipher.on("end", () => {
+    req.encryptedData = encryptedData;
+    next();
+  });
+
+  cipher.write(JSON.stringify(req.body));
+  cipher.end();
+};
+
+// Login into Auth0 with client@blablabla.com ClientPassword1
+// Login into Auth0 with admin@blablabla.com AdminPassword1
 
 // Get dashboard route
 formRouter.get("/dashboard", checkJwt, async (req, res, next) => {
@@ -35,67 +70,29 @@ formRouter.get("/dashboard", checkJwt, async (req, res, next) => {
 });
 
 // post claim route
-formRouter.post(
-  "/",
-  checkJwt,
-  encodingMiddleware,
-  encryptionMiddleware(process.env.ENCRYPTION_KEY),
-  dataValidate,
-  async (req, res, next) => {
-    try {
-      // Decrypt the data
-      const decipher = crypto.createDecipheriv(
-        "aes-256-cbc",
-        process.env.ENCRYPTION_KEY,
-        Buffer.from(req.iv, "hex")
-      );
-      let decryptedData = "";
-      decipher.on("readable", () => {
-        let chunk;
-        while ((chunk = decipher.read()) !== null) {
-          decryptedData += chunk.toString("utf8");
-        }
-      });
-      decipher.on("end", () => {
-        req.decryptedData = JSON.parse(decryptedData);
-        next();
-      });
-      decipher.on("error", (err) => {
-        next(err);
-      });
-      decipher.write(req.encryptedData, "hex");
-      decipher.end();
-    } catch (err) {
-      next(err);
-    }
-  },
-  async (req, res, next) => {
-    try {
-      const postClaimsForm = await formRepository.postClaimsForm(
-        req.decryptedData,
-        res,
-        next
-      );
+formRouter.post("/", checkJwt, encodingMiddleware, encryptionMiddleware, dataValidate, async (req, res, next) => {
+  try {
+    const postClaimsForm = await formRepository.postClaimsForm(req, res, next);
 
-      console.info(
-        JSON.stringify({
-          timestamp: postClaimsForm.created_at,
-          route_name: "/api/form",
-          route_type: "POST",
-          claim_id: postClaimsForm.claim_id,
-        })
-      );
+    console.info(
+      JSON.stringify({
+        timestamp: postClaimsForm.created_at,
+        route_name: "/api/form",
+        route_type: "POST",
+        claim_id: postClaimsForm.claim_id,
+      })
+    );
 
-      res.status(201).json(postClaimsForm);
-    } catch (err) {
-      next(err);
-    }
+    res.status(201).json(postClaimsForm);
+  } catch (err) {
+    next(err);
   }
-);
+});
 
 formRouter.put("/profile", checkJwt, async (req, res) => {
   try {
     const auth0ID = req.auth.payload.sub;
+    console.log(auth0ID);
     const user = await formRepository.updateUser(auth0ID, req.body);
     res.json(user);
   } catch (err) {

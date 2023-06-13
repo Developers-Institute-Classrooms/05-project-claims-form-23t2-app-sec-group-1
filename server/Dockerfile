@@ -1,14 +1,24 @@
-# Get the node 12 image
+# Base image
 FROM node:12
-# Create a folder called App
-WORKDIR /app
-# Copy everything apart from node modules into app folder
-# See dockerignore file
-COPY . /app
-# run these commands
-RUN ["npm", "install"]
-# expose a port
-EXPOSE 5000
-# run this command at entrypoint/on start
-ENTRYPOINT ["npm", "run", "start:dev"]
 
+# Set the working directory
+WORKDIR /app
+
+# Copy the necessary files
+COPY package*.json ./
+COPY generateKey.js ./
+
+# Install dependencies
+RUN npm install
+
+# Generate the encryption key
+RUN node generateKey.js
+
+# Copy the application code
+COPY . .
+
+# Expose the necessary port
+EXPOSE 5000
+
+# Start the application
+CMD [ "npm", "start" ]
