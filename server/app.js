@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 require('dotenv').config();
 const fs = require('fs');
@@ -10,6 +9,7 @@ const errorMiddleware = require('./middleware/errorHandling');
 const BodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const encryption = require('../middleware/encryption');
+
 // Generate and set the encryption key if it's not present in .env
 if (!process.env.ENCRYPTION_KEY) {
     const key = crypto.randomBytes(32).toString('hex');
@@ -18,7 +18,7 @@ if (!process.env.ENCRYPTION_KEY) {
 }
 
 // Other middleware and route handlers
-app.use(encryptionMiddleware);
+app.use(encryption.middleware); // Update middleware name here
 app.use(BodyParser.json());
 app.use(cors());
 

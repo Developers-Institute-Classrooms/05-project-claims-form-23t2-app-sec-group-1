@@ -4,6 +4,7 @@ const dataValidate = require("../middleware/dataValidation");
 const { auth } = require("express-oauth2-jwt-bearer");
 const formRepository = require("./form-router.repository");
 const crypto = require("crypto");
+const generateKey = require("../generateKey");
 
 const checkJwt = auth();
 
@@ -28,7 +29,7 @@ const encodingMiddleware = (req, res, next) => {
 // Encryption Middleware
 const encryptionMiddleware = (req, res, next) => {
   const algorithm = "aes-256-cbc";
-  const key = crypto.randomBytes(32);
+  const key = generateKey(); // Generate the encryption key
   const iv = crypto.randomBytes(16);
 
   const cipher = crypto.createCipheriv(algorithm, key, iv);
@@ -50,6 +51,54 @@ const encryptionMiddleware = (req, res, next) => {
   cipher.end();
 };
 
+// Decoding Middleware
+const decodingMiddleware = (req, res, next) => {
+  const body = req.decryptedData;
+  for (const key in body) {
+    if (typeof body[ key ] === "string") {
+      body[ key ] = Buffer.from(body[ key ], "base64").toString("utf8");
+    }
+  }
+  next();
+};
+
+// Decryption Middleware
+const decryptionMiddleware = (req, res, next) => {
+  const algorithm = "aes-256-cbc";
+  const key = req.decryptionKey;
+  const iv = crypto.randomBytes(16);
+
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+
+  let decryptedData = "";
+  decipher.on("readable", () => {
+    let chunk;
+    while ((chunk = decipher.read()) !== null) {
+      decryptedData += chunk.toString("utf8");
+    }
+  });
+
+  decipher.on("end", () => {
+    req.decryptedData = decryptedData;
+    next();
+  });
+
+  decipher.write(req.encryptedData, "hex");
+  decipher.end();
+};
+
+formRouter.use((req, res, next) => {
+  const decryptionKey = process.env.ENCRYPTION_KEY || generateKey(); // Use existing key or generate a new one
+  if (!decryptionKey) {
+    return res.status(500).json({ error: "Encryption key is missing" });
+  }
+  req.decryptionKey = decryptionKey;
+  next();
+});
+
+formRouter.use(decryptionMiddleware);
+formRouter.use(decodingMiddleware);
+
 // Login into Auth0 with client@blablabla.com ClientPassword1
 // Login into Auth0 with admin@blablabla.com AdminPassword1
 
@@ -70,24 +119,35 @@ formRouter.get("/dashboard", checkJwt, async (req, res, next) => {
 });
 
 // post claim route
-formRouter.post("/", checkJwt, encodingMiddleware, encryptionMiddleware, dataValidate, async (req, res, next) => {
-  try {
-    const postClaimsForm = await formRepository.postClaimsForm(req, res, next);
+formRouter.post(
+  "/",
+  checkJwt,
+  encodingMiddleware,
+  encryptionMiddleware,
+  dataValidate,
+  async (req, res, next) => {
+    try {
+      const postClaimsForm = await formRepository.postClaimsForm(
+        req,
+        res,
+        next
+      );
 
-    console.info(
-      JSON.stringify({
-        timestamp: postClaimsForm.created_at,
-        route_name: "/api/form",
-        route_type: "POST",
-        claim_id: postClaimsForm.claim_id,
-      })
-    );
+      console.info(
+        JSON.stringify({
+          timestamp: postClaimsForm.created_at,
+          route_name: "/api/form",
+          route_type: "POST",
+          claim_id: postClaimsForm.claim_id,
+        })
+      );
 
-    res.status(201).json(postClaimsForm);
-  } catch (err) {
-    next(err);
+      res.status(201).json(postClaimsForm);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 formRouter.put("/profile", checkJwt, async (req, res) => {
   try {
