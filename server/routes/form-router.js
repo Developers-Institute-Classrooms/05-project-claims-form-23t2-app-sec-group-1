@@ -1,6 +1,8 @@
 const express = require("express");
 const formRouter = express.Router();
 const dataValidate = require("../middleware/dataValidation");
+const { encodingMiddleware, encryptionMiddleware } = require("./encryptionMiddleware");
+
 const { auth } = require("express-oauth2-jwt-bearer");
 const formRepository = require("./form-router.repository");
 
