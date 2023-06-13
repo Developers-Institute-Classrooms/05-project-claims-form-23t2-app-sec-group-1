@@ -13,9 +13,6 @@ const checkPermissions = (req, res, next) => {
   next();
 };
 
-// Login into Auth0 with client@blablabla.com ClientPassword1
-// Login into Auth0 with admin@blablabla.com AdminPassword1
-
 // Get dashboard route
 formRouter.get("/dashboard", checkJwt, async (req, res, next) => {
   try {
@@ -55,7 +52,6 @@ formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
 formRouter.put("/profile", checkJwt, async (req, res) => {
   try {
     const auth0ID = req.auth.payload.sub;
-    console.log(auth0ID);
     const user = await formRepository.updateUser(auth0ID, req.body);
     res.json(user);
   } catch (err) {

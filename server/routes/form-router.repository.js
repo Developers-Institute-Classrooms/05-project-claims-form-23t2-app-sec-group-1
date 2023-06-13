@@ -30,7 +30,7 @@ module.exports = {
         ]
       );
 
-      return newItem.rows[0];
+      return newItem.rows[ 0 ];
     } catch (err) {
       throw err;
     }
@@ -45,38 +45,36 @@ module.exports = {
 
   allClaimsForUser: async (auth0ID) => {
     const userClaims = await pool.query(
-      `SELECT Claims.* FROM Claims 
+      `SELECT Claims.* FROM Claims
       JOIN Users ON Claims.customer_id = Users.CustomerID
       WHERE (Users.Auth0ID = $1)`,
-      [auth0ID]
+      [ auth0ID ]
     );
     return userClaims.rows;
   },
   updateClaimStatus: async (claim_id, status) => {
     const updatedClaim = await pool.query(
       "UPDATE Claims SET status = $1 WHERE claim_id = $2 RETURNING *",
-      [status, claim_id]
+      [ status, claim_id ]
     );
-    return updatedClaim.rows[0];
+    return updatedClaim.rows[ 0 ];
   },
   getUserByAuth0ID: async (auth0ID) => {
     const user = await pool.query(
       "SELECT CustomerID, Name, Address, EmailAddress, PhoneNumber, NextOfKin, PreExistingMedicalConditions, BankAccountNumber FROM Users WHERE Auth0ID = $1",
-      [auth0ID]
+      [ auth0ID ]
     );
-    return user.rows[0];
+    return user.rows[ 0 ];
   },
   updateUser: async (auth0ID, userData) => {
-    console.log(userData);
-    const key = Object.keys(userData)[0];
-    console.log(key);
-    const value = userData[key];
+    const key = Object.keys(userData)[ 0 ];
+    const value = userData[ key ];
 
     const result = await pool.query(
       `UPDATE Users SET ${key} = $1 WHERE Auth0ID = $2 RETURNING *`,
-      [value, auth0ID]
+      [ value, auth0ID ]
     );
 
-    return result.rows[0];
+    return result.rows[ 0 ];
   },
 };
