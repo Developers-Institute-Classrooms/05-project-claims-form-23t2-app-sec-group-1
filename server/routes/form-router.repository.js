@@ -67,7 +67,9 @@ module.exports = {
     return user.rows[ 0 ];
   },
   updateUser: async (auth0ID, userData) => {
+    console.log(userData);
     const key = Object.keys(userData)[ 0 ];
+    console.log(key);
     const value = userData[ key ];
 
     const result = await pool.query(
