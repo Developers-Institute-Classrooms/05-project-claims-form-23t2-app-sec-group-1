@@ -5,8 +5,6 @@ const dataValidate = require("../middleware/dataValidation");
 const { auth } = require("express-oauth2-jwt-bearer");
 const formRepository = require("./form-router.repository");
 const fetch = require("node-fetch");
-require("dotenv").config(); // Load environment variables from .env file
-
 const checkJwt = auth();
 
 const checkPermissions = (req, res, next) => {
@@ -21,21 +19,6 @@ function encodeToBase64(value) {
   const encodedValue = Buffer.from(value).toString("base64");
   console.log(`Encoded value: ${encodedValue}`);
   return encodedValue;
-}
-
-// Encrypt string using AES encryption
-function encryptString(value, key) {
-  const encrypted = CryptoJS.AES.encrypt(value, key).toString();
-  console.log(`Encrypted value: ${encrypted}`);
-  return encrypted;
-}
-
-// Decrypt string using AES decryption
-function decryptString(encryptedValue, key) {
-  const decryptedBytes = CryptoJS.AES.decrypt(encryptedValue, key);
-  const decryptedValue = decryptedBytes.toString(CryptoJS.enc.Utf8);
-  console.log(`Decrypted value: ${decryptedValue}`);
-  return decryptedValue;
 }
 
 // Decode value from base64
@@ -81,28 +64,26 @@ formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
         consent,
       } = req.body;
 
-      // Encode sensitive fields to base64
+      // Encode all fields to base64
       const encodedPolicyNumber = encodeToBase64(policy_number);
-
-      // Encrypt sensitive fields using AES encryption
-      const encryptedCustomerId = encryptString(
-        customer_id,
-        process.env.ENCRYPTION_KEY
-      );
-      const encryptedConditionClaimedFor = encryptString(
-        condition_claimed_for,
-        process.env.ENCRYPTION_KEY
-      );
-
-      // Apply encoding and encryption to other sensitive fields as needed
+      const encodedCustomerId = encodeToBase64(customer_id);
+      const encodedConditionClaimedFor = encodeToBase64(condition_claimed_for);
+      const encodedSymptomsDetails = encodeToBase64(symptoms_details);
+      // Encode other fields as needed
 
       const postClaimsForm = await formRepository.postClaimsForm(
         req,
         res,
         next,
         encodedPolicyNumber,
-        encryptedCustomerId,
-        encryptedConditionClaimedFor
+        encodedCustomerId,
+        encodedConditionClaimedFor,
+        first_symptoms_date,
+        encodedSymptomsDetails,
+        medical_service_type,
+        service_provider_name,
+        other_insurance_provider,
+        consent
       );
 
       console.info(
