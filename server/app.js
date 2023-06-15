@@ -4,9 +4,10 @@ const app = express();
 const cors = require("cors");
 const formRouter = require("./routes/form-router");
 const errorMiddleware = require("./middleware/errorHandling");
-const BodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 const { errors } = require("celebrate");
-app.use(BodyParser.json());
+
+app.use(bodyParser.json());
 app.use(cors());
 
 app.use("/api/form", formRouter);
