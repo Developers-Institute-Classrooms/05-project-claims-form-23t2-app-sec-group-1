@@ -5,6 +5,8 @@ const dataValidate = require("../middleware/dataValidation");
 const { auth } = require("express-oauth2-jwt-bearer");
 const formRepository = require("./form-router.repository");
 const fetch = require("node-fetch");
+require("dotenv").config(); // Load environment variables from .env file
+
 const checkJwt = auth();
 
 const checkPermissions = (req, res, next) => {
@@ -14,52 +16,33 @@ const checkPermissions = (req, res, next) => {
   next();
 };
 
-// Login into Auth0 with client@blablabla.com ClientPassword1
-// Login into Auth0 with admin@blablabla.com AdminPassword1
+// Encode value to base64
+function encodeToBase64(value) {
+  const encodedValue = Buffer.from(value).toString("base64");
+  console.log(`Encoded value: ${encodedValue}`);
+  return encodedValue;
+}
 
-// Middleware for encoding data to Base64
-const encodeToBase64 = (req, res, next) => {
-  if (req.body.policy_number) {
-    req.body.policy_number = Buffer.from(req.body.policy_number).toString("base64");
-  }
-  next();
-};
-
-// Middleware for encrypting data
-const encryptData = (req, res, next) => {
-  if (req.body.customer_id) {
-    req.body.customer_id = encryptString(req.body.customer_id, process.env.ENCRYPTION_KEY);
-  }
-  if (req.body.condition_claimed_for) {
-    req.body.condition_claimed_for = encryptString(req.body.condition_claimed_for, process.env.ENCRYPTION_KEY);
-  }
-  // Apply encryption to other fields as needed
-  next();
-};
-
-// Middleware for decrypting data
-const decryptData = (req, res, next) => {
-  if (req.body.customer_id) {
-    req.body.customer_id = decryptString(req.body.customer_id, process.env.ENCRYPTION_KEY);
-  }
-  if (req.body.condition_claimed_for) {
-    req.body.condition_claimed_for = decryptString(req.body.condition_claimed_for, process.env.ENCRYPTION_KEY);
-  }
-  // Apply decryption to other fields as needed
-  next();
-};
-
-// Encryption function
+// Encrypt string using AES encryption
 function encryptString(value, key) {
   const encrypted = CryptoJS.AES.encrypt(value, key).toString();
+  console.log(`Encrypted value: ${encrypted}`);
   return encrypted;
 }
 
-// Decryption function
+// Decrypt string using AES decryption
 function decryptString(encryptedValue, key) {
   const decryptedBytes = CryptoJS.AES.decrypt(encryptedValue, key);
   const decryptedValue = decryptedBytes.toString(CryptoJS.enc.Utf8);
+  console.log(`Decrypted value: ${decryptedValue}`);
   return decryptedValue;
+}
+
+// Decode value from base64
+function decodeFromBase64(value) {
+  const decodedValue = Buffer.from(value, "base64").toString();
+  console.log(`Decoded value: ${decodedValue}`);
+  return decodedValue;
 }
 
 // Get dashboard route
@@ -79,7 +62,7 @@ formRouter.get("/dashboard", checkJwt, async (req, res, next) => {
 });
 
 // post claim route
-formRouter.post("/", checkJwt, dataValidate, encodeToBase64, encryptData, async (req, res, next) => {
+formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
   try {
     const response = await fetch(
       `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.API_KEY}&response=${req.body.captcha}`
@@ -98,15 +81,28 @@ formRouter.post("/", checkJwt, dataValidate, encodeToBase64, encryptData, async 
         consent,
       } = req.body;
 
-      // Apply encoding and encryption to other fields as needed
+      // Encode sensitive fields to base64
+      const encodedPolicyNumber = encodeToBase64(policy_number);
+
+      // Encrypt sensitive fields using AES encryption
+      const encryptedCustomerId = encryptString(
+        customer_id,
+        process.env.ENCRYPTION_KEY
+      );
+      const encryptedConditionClaimedFor = encryptString(
+        condition_claimed_for,
+        process.env.ENCRYPTION_KEY
+      );
+
+      // Apply encoding and encryption to other sensitive fields as needed
 
       const postClaimsForm = await formRepository.postClaimsForm(
         req,
         res,
         next,
-        policy_number,
-        customer_id,
-        condition_claimed_for
+        encodedPolicyNumber,
+        encryptedCustomerId,
+        encryptedConditionClaimedFor
       );
 
       console.info(
@@ -129,7 +125,7 @@ formRouter.post("/", checkJwt, dataValidate, encodeToBase64, encryptData, async 
 formRouter.put("/profile", checkJwt, async (req, res) => {
   try {
     const auth0ID = req.auth.payload.sub;
-    console.log(auth0ID);
+    console.log(`Auth0 ID: ${auth0ID}`);
     const user = await formRepository.updateUser(auth0ID, req.body);
     res.json(user);
   } catch (err) {
