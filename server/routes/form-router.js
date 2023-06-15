@@ -1,5 +1,6 @@
 const express = require("express");
 const formRouter = express.Router();
+const CryptoJS = require("crypto-js");
 const dataValidate = require("../middleware/dataValidation");
 const { auth } = require("express-oauth2-jwt-bearer");
 const formRepository = require("./form-router.repository");
@@ -15,6 +16,15 @@ const checkPermissions = (req, res, next) => {
 
 // Login into Auth0 with client@blablabla.com ClientPassword1
 // Login into Auth0 with admin@blablabla.com AdminPassword1
+
+function encodeToBase64(value) {
+  return Buffer.from(value).toString("base64");
+}
+
+function encryptString(value, key) {
+  const encrypted = CryptoJS.AES.encrypt(value, key).toString();
+  return encrypted;
+}
 
 // Get dashboard route
 formRouter.get("/dashboard", checkJwt, async (req, res, next) => {
@@ -40,10 +50,30 @@ formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
     );
     const data = await response.json();
     if (data.success === true) {
+      const {
+        policy_number,
+        customer_id,
+        condition_claimed_for,
+        first_symptoms_date,
+        symptoms_details,
+        medical_service_type,
+        service_provider_name,
+        other_insurance_provider,
+        consent,
+      } = req.body;
+
+      const encodedPolicyNumber = encodeToBase64(policy_number);
+      const encryptedCustomerId = encryptString(customer_id, process.env.ENCRYPTION_KEY);
+      const encryptedConditionClaimedFor = encryptString(condition_claimed_for, process.env.ENCRYPTION_KEY);
+      // Apply encoding and encryption to other fields as needed
+
       const postClaimsForm = await formRepository.postClaimsForm(
         req,
         res,
-        next
+        next,
+        encodedPolicyNumber,
+        encryptedCustomerId,
+        encryptedConditionClaimedFor
       );
 
       console.info(
