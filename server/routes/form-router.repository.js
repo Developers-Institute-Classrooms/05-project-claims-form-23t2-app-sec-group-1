@@ -1,20 +1,22 @@
 const pool = require("../db");
+const { Buffer } = require("buffer");
 
 module.exports = {
-  postClaimsForm: async (req, res, next, policy_number, customer_id, condition_claimed_for) => {
+  postClaimsForm: async (
+    policy_number,
+    customer_id,
+    condition_claimed_for,
+    first_symptoms_date,
+    symptoms_details,
+    medical_service_type,
+    service_provider_name,
+    other_insurance_provider,
+    consent
+  ) => {
     try {
-      const {
-        first_symptoms_date,
-        symptoms_details,
-        medical_service_type,
-        service_provider_name,
-        other_insurance_provider,
-        consent,
-      } = req.body;
-
       const newItem = await pool.query(
         `INSERT INTO claims (policy_number, customer_id, condition_claimed_for, first_symptoms_date, symptoms_details, medical_service_type, service_provider_name, other_insurance_provider, consent)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
         [
           policy_number,
           customer_id,
@@ -44,12 +46,13 @@ module.exports = {
   allClaimsForUser: async (auth0ID) => {
     const userClaims = await pool.query(
       `SELECT Claims.* FROM Claims
-      JOIN Users ON Claims.customer_id = Users.CustomerID
-      WHERE (Users.Auth0ID = $1)`,
+        JOIN Users ON Claims.customer_id = Users.CustomerID
+        WHERE (Users.Auth0ID = $1)`,
       [ auth0ID ]
     );
     return userClaims.rows;
   },
+
   updateClaimStatus: async (claim_id, status) => {
     const updatedClaim = await pool.query(
       "UPDATE Claims SET status = $1 WHERE claim_id = $2 RETURNING *",
@@ -57,6 +60,7 @@ module.exports = {
     );
     return updatedClaim.rows[ 0 ];
   },
+
   getUserByAuth0ID: async (auth0ID) => {
     const user = await pool.query(
       "SELECT CustomerID, Name, Address, EmailAddress, PhoneNumber, NextOfKin, PreExistingMedicalConditions, BankAccountNumber FROM Users WHERE Auth0ID = $1",
@@ -64,6 +68,7 @@ module.exports = {
     );
     return user.rows[ 0 ];
   },
+
   updateUser: async (auth0ID, userData) => {
     const key = Object.keys(userData)[ 0 ];
     const value = userData[ key ];

@@ -1,18 +1,11 @@
 const express = require("express");
 const formRouter = express.Router();
-const CryptoJS = require("crypto-js");
-const dataValidate = require("../middleware/dataValidation");
-const { auth } = require("express-oauth2-jwt-bearer");
-const formRepository = require("./form-router.repository");
 const fetch = require("node-fetch");
-const checkJwt = auth();
+const { auth } = require("express-oauth2-jwt-bearer");
+const dataValidate = require("../middleware/dataValidation");
+const formRepository = require("./form-router.repository");
 
-const checkPermissions = (req, res, next) => {
-  if (!req.auth.payload.permissions.includes("admin:claims")) {
-    return res.status(403).json({ error: "Access denied" });
-  }
-  next();
-};
+const checkJwt = auth();
 
 // Encode value to base64
 function encodeToBase64(value) {
@@ -65,36 +58,51 @@ formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
       } = req.body;
 
       // Encode all fields to base64
-      const encodedPolicyNumber = encodeToBase64(policy_number);
-      const encodedCustomerId = encodeToBase64(customer_id);
-      const encodedConditionClaimedFor = encodeToBase64(condition_claimed_for);
-      const encodedSymptomsDetails = encodeToBase64(symptoms_details);
-      // Encode other fields as needed
+      const encodedFields = {
+        policy_number: encodeToBase64(policy_number),
+        customer_id: encodeToBase64(customer_id),
+        condition_claimed_for: encodeToBase64(condition_claimed_for),
+        first_symptoms_date: encodeToBase64(first_symptoms_date.toISOString()),
+        // Encode date as string - avoiding a known error likely when decoding dates.
+        symptoms_details: encodeToBase64(symptoms_details),
+        medical_service_type: encodeToBase64(medical_service_type),
+        service_provider_name: encodeToBase64(service_provider_name),
+        other_insurance_provider: encodeToBase64(other_insurance_provider),
+        consent: encodeToBase64(consent),
+      };
 
-      const postClaimsForm = await formRepository.postClaimsForm(
-        req,
-        res,
-        next,
-        encodedPolicyNumber,
-        encodedCustomerId,
-        encodedConditionClaimedFor,
-        first_symptoms_date,
-        encodedSymptomsDetails,
-        medical_service_type,
-        service_provider_name,
-        other_insurance_provider,
-        consent
-      );
+      console.log("Encoded Fields:");
+      console.log(encodedFields);
 
-      console.info(
-        JSON.stringify({
-          timestamp: postClaimsForm.created_at,
-          route_name: "/api/form",
-          route_type: "POST",
-          claim_id: postClaimsForm.claim_id,
-        })
-      );
-      res.status(201).json(postClaimsForm);
+      // Perform encryption and decryption as needed - to be added later
+
+      // Decode specific fields from base64
+      const decodedPolicyNumber = decodeFromBase64(encodedFields.policy_number);
+      const decodedCustomerId = decodeFromBase64(encodedFields.customer_id);
+      const decodedConditionClaimedFor = decodeFromBase64(encodedFields.condition_claimed_for);
+      const decodedFirstSymptomsDate = new Date(decodeFromBase64(encodedFields.first_symptoms_date)); // Decode date from string
+      const decodedSymptomsDetails = decodeFromBase64(encodedFields.symptoms_details);
+      const decodedMedicalServiceType = decodeFromBase64(encodedFields.medical_service_type);
+      const decodedServiceProviderName = decodeFromBase64(encodedFields.service_provider_name);
+      const decodedOtherInsuranceProvider = decodeFromBase64(encodedFields.other_insurance_provider);
+      const decodedConsent = decodeFromBase64(encodedFields.consent);
+
+      console.log("Decoded Fields:");
+      console.log({
+        policy_number: decodedPolicyNumber,
+        customer_id: decodedCustomerId,
+        condition_claimed_for: decodedConditionClaimedFor,
+        first_symptoms_date: decodedFirstSymptomsDate,
+        symptoms_details: decodedSymptomsDetails,
+        medical_service_type: decodedMedicalServiceType,
+        service_provider_name: decodedServiceProviderName,
+        other_insurance_provider: decodedOtherInsuranceProvider,
+        consent: decodedConsent,
+      });
+
+      // Process the decoded values as needed
+
+      res.status(201).json({ message: "Claims form submitted successfully" });
     } else {
       res.status(400).send("ERROR Invalid request");
     }
@@ -103,6 +111,7 @@ formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
   }
 });
 
+// Other routes... which as NOT a POST route I beleive don't need this applied? AJS - not sure |o_0|
 formRouter.put("/profile", checkJwt, async (req, res) => {
   try {
     const auth0ID = req.auth.payload.sub;
