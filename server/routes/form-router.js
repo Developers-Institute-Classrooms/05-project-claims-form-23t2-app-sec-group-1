@@ -3,7 +3,7 @@ const formRouter = express.Router();
 const fetch = require("node-fetch");
 const { auth } = require("express-oauth2-jwt-bearer");
 const dataValidate = require("../middleware/dataValidation");
-const formRepository = require("./form-router.repository");
+const formRepository = require("./form-router.repository.js");
 const checkJwt = auth();
 
 const checkPermissions = (req, res, next) => {
