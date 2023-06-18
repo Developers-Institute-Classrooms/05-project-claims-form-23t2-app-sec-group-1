@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS plpgsql;
+
 CREATE OR REPLACE FUNCTION unique_random_claim_id()
   RETURNS bigint AS $$
 DECLARE

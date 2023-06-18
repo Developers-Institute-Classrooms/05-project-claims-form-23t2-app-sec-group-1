@@ -4,11 +4,22 @@ const fetch = require("node-fetch");
 const { auth } = require("express-oauth2-jwt-bearer");
 const dataValidate = require("../middleware/dataValidation");
 const formRepository = require("./form-router.repository");
-
 const checkJwt = auth();
 
+const checkPermissions = (req, res, next) => {
+  if (!req.auth.payload.permissions.includes("admin:claims")) {
+    return res.status(403).json({ error: "Access denied" });
+  }
+  next();
+};
+
+//Encode & Decode Functions (with console.logging)
 // Encode value to base64
 function encodeToBase64(value) {
+  if (typeof value !== 'string') {
+    value = String(value);
+  }
+
   const encodedValue = Buffer.from(value).toString("base64");
   console.log(`Encoded value: ${encodedValue}`);
   return encodedValue;
@@ -20,6 +31,8 @@ function decodeFromBase64(value) {
   console.log(`Decoded value: ${decodedValue}`);
   return decodedValue;
 }
+
+// ROUTES
 
 // Get dashboard route
 formRouter.get("/dashboard", checkJwt, async (req, res, next) => {
@@ -111,7 +124,8 @@ formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
   }
 });
 
-// Other routes... which as NOT a POST route I beleive don't need this applied? AJS - not sure |o_0|
+// Other routes... which do NOT require POST request handling
+
 formRouter.put("/profile", checkJwt, async (req, res) => {
   try {
     const auth0ID = req.auth.payload.sub;
