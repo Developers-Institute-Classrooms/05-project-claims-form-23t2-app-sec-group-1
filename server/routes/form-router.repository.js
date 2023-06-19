@@ -1,4 +1,5 @@
 const pool = require("../db");
+const { encodeData, decodeData } = require("./encodeDecode");
 
 module.exports = {
   postClaimsForm: async (req, res, next) => {
@@ -14,23 +15,17 @@ module.exports = {
         other_insurance_provider,
         consent,
       } = req.body;
+
+      // Encode the data before inserting into the database
+      const encodedData = encodeData(req.body);
+
       const newItem = await pool.query(
-        `INSERT INTO claims (policy_number, customer_id, condition_claimed_for,first_symptoms_date,symptoms_details,medical_service_type,service_provider_name,other_insurance_provider,consent)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-        [
-          policy_number,
-          customer_id,
-          condition_claimed_for,
-          first_symptoms_date,
-          symptoms_details,
-          medical_service_type,
-          service_provider_name,
-          other_insurance_provider,
-          consent,
-        ]
+        `INSERT INTO claims (encoded_data)
+                VALUES ($1) RETURNING *`,
+        [ encodedData ]
       );
 
-      return newItem.rows[0];
+      return newItem.rows[ 0 ];
     } catch (err) {
       throw new Error("Failed to post claims form");
     }
@@ -39,9 +34,15 @@ module.exports = {
   allClaimsForAdmin: async () => {
     try {
       const allClaims = await pool.query(
-        "SELECT Claims.*, Users.Name, Users.Address, Users.EmailAddress, Users.PhoneNumber, Users.PreExistingMedicalConditions, Users.UserPolicies FROM Claims JOIN Users ON Claims.customer_id = Users.CustomerID;"
+        "SELECT claim_id, encoded_data FROM claims"
       );
-      return allClaims.rows;
+
+      // Decode the data before returning
+      const decodedClaims = allClaims.rows.map((claim) =>
+        decodeData(claim.encoded_data)
+      );
+
+      return decodedClaims;
     } catch (err) {
       throw new Error("Failed to fetch all claims for admin");
     }
@@ -50,12 +51,17 @@ module.exports = {
   allClaimsForUser: async (auth0ID) => {
     try {
       const userClaims = await pool.query(
-        `SELECT Claims.* FROM Claims 
-      JOIN Users ON Claims.customer_id = Users.CustomerID
-      WHERE (Users.Auth0ID = $1)`,
-        [auth0ID]
+        `SELECT claim_id, encoded_data FROM claims
+      WHERE customer_id IN (SELECT customer_id FROM users WHERE auth0ID = $1)`,
+        [ auth0ID ]
       );
-      return userClaims.rows;
+
+      // Decode the data before returning
+      const decodedClaims = userClaims.rows.map((claim) =>
+        decodeData(claim.encoded_data)
+      );
+
+      return decodedClaims;
     } catch (err) {
       throw new Error("Failed to fetch all claims for user");
     }
@@ -64,10 +70,14 @@ module.exports = {
   updateClaimStatus: async (claim_id, status) => {
     try {
       const updatedClaim = await pool.query(
-        "UPDATE Claims SET status = $1 WHERE claim_id = $2 RETURNING *",
-        [status, claim_id]
+        "UPDATE claims SET status = $1 WHERE claim_id = $2 RETURNING *",
+        [ status, claim_id ]
       );
-      return updatedClaim.rows[0];
+
+      // Decode the data before returning
+      const decodedClaim = decodeData(updatedClaim.rows[ 0 ].encoded_data);
+
+      return decodedClaim;
     } catch (err) {
       throw new Error("Failed to update claim status");
     }
@@ -76,10 +86,14 @@ module.exports = {
   getUserByAuth0ID: async (auth0ID) => {
     try {
       const user = await pool.query(
-        "SELECT Name, CustomerID, UserPolicies, BankAccountNumber, PreExistingMedicalConditions, Address, EmailAddress, PhoneNumber, NextOfKin FROM Users WHERE Auth0ID = $1",
-        [auth0ID]
+        "SELECT name, customer_id, user_policies, bank_account_number, pre_existing_medical_conditions, address, email_address, phone_number, next_of_kin FROM users WHERE auth0ID = $1",
+        [ auth0ID ]
       );
-      return user.rows[0];
+
+      // Decode the data before returning
+      const decodedUser = decodeData(user.rows[ 0 ].encoded_data);
+
+      return decodedUser;
     } catch (err) {
       throw new Error("Failed to fetch user");
     }
@@ -87,26 +101,32 @@ module.exports = {
 
   updateUser: async (auth0ID, userData) => {
     try {
-      const key = Object.keys(userData)[0];
-      const value = userData[key];
+      const key = Object.keys(userData)[ 0 ];
+      const value = userData[ key ];
       console.log(key);
       console.log(value);
       if (
-        key === "CustomerID" ||
-        key === "UserPolicies" ||
-        key === "BankAccountNumber" ||
-        key === "preexistingmedicalconditions"
+        key === "customer_id" ||
+        key === "user_policies" ||
+        key === "bank_account_number" ||
+        key === "pre_existing_medical_conditions"
       ) {
         // If the key is one of the excluded values, return the existing user without updating the database
         return getUser(auth0ID); // Implement the `getUser` function to fetch and return the user data
       }
 
+      // Encode the data before updating in the database
+      const encodedData = encodeData(userData);
+
       const result = await pool.query(
-        `UPDATE Users SET ${key} = $1 WHERE Auth0ID = $2 RETURNING *`,
-        [value, auth0ID]
+        `UPDATE users SET encoded_data = $1 WHERE auth0ID = $2 RETURNING *`,
+        [ encodedData, auth0ID ]
       );
 
-      return result.rows[0];
+      // Decode the data before returning
+      const decodedUser = decodeData(result.rows[ 0 ].encoded_data);
+
+      return decodedUser;
     } catch (err) {
       throw new Error("Failed to update user");
     }
