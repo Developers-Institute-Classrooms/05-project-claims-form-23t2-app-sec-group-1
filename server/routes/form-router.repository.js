@@ -1,6 +1,25 @@
 const pool = require("../db");
 const { encodeData, decodeData } = require("./encodeDecode");
 
+async function getUser(auth0ID) {
+  try {
+    const user = await pool.query(
+      "SELECT * FROM users WHERE auth0ID = $1",
+      [ auth0ID ]
+    );
+
+    // If the user exists, return the user data
+    if (user.rows.length > 0) {
+      return user.rows[ 0 ];
+    }
+
+    // If the user does not exist, return null or throw an error
+    return null;
+  } catch (err) {
+    throw new Error("Failed to fetch user");
+  }
+}
+
 module.exports = {
   postClaimsForm: async (req, res, next) => {
     try {
@@ -112,7 +131,7 @@ module.exports = {
         key === "pre_existing_medical_conditions"
       ) {
         // If the key is one of the excluded values, return the existing user without updating the database
-        return getUser(auth0ID); // Implement the `getUser` function to fetch and return the user data
+        return getUser(auth0ID);
       }
 
       // Encode the data before updating in the database
@@ -131,4 +150,6 @@ module.exports = {
       throw new Error("Failed to update user");
     }
   },
+
+  getUser: getUser,
 };

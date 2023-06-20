@@ -1,31 +1,34 @@
 version: '3'
 services:
-    client: 
-        build:            
+    client:
+        build:
             context: ./client
-        ports:            
-            - '3333:3000'        
-        depends_on:            
+        ports:
+            - '3333:3000'
+        depends_on:
             - server
-        volumes:            
-            - ./client:/app/             
+        volumes:
+            - ./client:/app/
             - /app/node_modules
+        entrypoint: npm start
     server:
-        build:            
-            context: ./server            
+        build:
+            context: ./server
         ports:
             - '5001:5000'
-        depends_on:             
+            - '9229:9229'
+        entrypoint: npm start
+        depends_on:
             - db
-        volumes:            
-            - ./server:/app            
-            - /app/node_modules                     
+        volumes:
+            - ./server:/app
+            - /app/node_modules
     db:
-        build:            
-            context: ./db        
-        volumes: 
-            - form-volume:/var/lib/postgresql/data
-        ports:            
+        build:
+            context: ./db
+        volumes:
+            - db-volume:/var/lib/postgresql/data
+        ports:
             - '5433:5432'
-volumes:     
-    form-volume:
+volumes:
+    db-volume:

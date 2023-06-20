@@ -1,13 +1,19 @@
+const CryptoJS = require("crypto-js");
+
+
 const encodeData = (data) => {
-    const encodedData = Buffer.from(JSON.stringify(data)).toString("base64");
-    return encodedData;
+    const wordArray = CryptoJS.enc.Utf8.parse(data);
+    const base64 = CryptoJS.enc.Base64.stringify(wordArray);
+    return base64;
 };
 
 const decodeData = (encodedData) => {
-    const decodedData = JSON.parse(
-        Buffer.from(encodedData, "base64").toString("utf-8")
-    );
-    return decodedData;
+    const parsedWordArray = CryptoJS.enc.Base64.parse(encodedData);
+    const parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+    return parsedStr;
 };
 
-module.exports = { encodeData, decodeData };
+module.exports = {
+    encodeData,
+    decodeData,
+};

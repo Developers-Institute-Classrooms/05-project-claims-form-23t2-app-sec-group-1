@@ -6,27 +6,9 @@ const formRepository = require("./form-router.repository");
 const fetch = require("node-fetch");
 const checkJwt = auth();
 const checkPermissions = require("../middleware/checkPermissions");
+const { encodeData, decodeData } = require("./encodeDecode");
 
-// Login into Auth0 with client@blablabla.com ClientPassword1
-// Login into Auth0 with admin@blablabla.com AdminPassword1
-
-// Get dashboard route
-formRouter.get("/dashboard", checkJwt, async (req, res, next) => {
-  try {
-    if (req.auth.payload.permissions.includes("admin:claims")) {
-      const adminClaims = await formRepository.allClaimsForAdmin();
-      res.json({ claims: adminClaims, role: "Admin" });
-    } else {
-      const auth0ID = req.auth.payload.sub;
-      const userClaims = await formRepository.allClaimsForUser(auth0ID);
-      res.json({ claims: userClaims, role: null });
-    }
-  } catch (err) {
-    next(err);
-  }
-});
-
-// post claim route
+// POST claim route
 formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
   try {
     const response = await fetch(
@@ -38,15 +20,19 @@ formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
       const auth0ID = req.auth.payload.sub;
       const user = await formRepository.getUserByAuth0ID(auth0ID);
 
-      // check if user has same customer ID and Policy ID in request body
+      // check if user has the same customer ID and Policy ID in the request body
       if (
         user.customer_id !== req.body.customerid ||
         user.userpolicies.includes(req.body.policy_number) === false
       ) {
         return res.status(400).json({ error: "Validation failed" });
       }
+
+      // Encode data before posting claims form
+      const encodedData = encodeData(JSON.stringify(req.body));
+
       const postClaimsForm = await formRepository.postClaimsForm(
-        req,
+        encodedData,
         res,
         next
       );
@@ -59,7 +45,11 @@ formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
           claim_id: postClaimsForm.claim_id,
         })
       );
-      res.status(201).json(postClaimsForm);
+
+      // Decode data after successful submission
+      const decodedData = JSON.parse(decodeData(encodedData));
+
+      res.status(201).json({ ...postClaimsForm, decodedData });
     } else {
       res.status(400).send("ERROR Invalid request");
     }
@@ -68,18 +58,28 @@ formRouter.post("/", checkJwt, dataValidate, async (req, res, next) => {
   }
 });
 
+// PUT profile route
 formRouter.put("/profile", checkJwt, async (req, res, next) => {
   try {
     const auth0ID = req.auth.payload.sub;
     console.log(auth0ID);
-    const user = await formRepository.updateUser(auth0ID, req.body);
-    res.json(user);
+
+    // Encode data before updating user profile
+    const encodedData = encodeData(JSON.stringify(req.body));
+
+    const user = await formRepository.updateUser(auth0ID, encodedData);
+
+    // Decode data after successful update
+    const decodedData = JSON.parse(decodeData(encodedData));
+
+    res.json({ ...user, decodedData });
   } catch (err) {
     console.error(err);
     next(err);
   }
 });
 
+// PUT claim status route
 formRouter.put(
   "/:claim_id",
   checkJwt,
@@ -93,6 +93,7 @@ formRouter.put(
         claim_id,
         status
       );
+
       res.json(updatedClaim);
     } catch (err) {
       next(err);
@@ -100,11 +101,33 @@ formRouter.put(
   }
 );
 
+// GET user profile route
 formRouter.get("/profile", checkJwt, async (req, res, next) => {
   try {
     const auth0ID = req.auth.payload.sub;
+
     const user = await formRepository.getUserByAuth0ID(auth0ID);
-    res.json(user);
+
+    // Decode data before sending user profile response
+    const decodedData = JSON.parse(decodeData(user));
+
+    res.json(decodedData);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET dashboard route
+formRouter.get("/dashboard", checkJwt, async (req, res, next) => {
+  try {
+    const auth0ID = req.auth.payload.sub;
+
+    const dashboardData = await formRepository.getDashboardData(auth0ID);
+
+    // Decode data before sending dashboard response
+    const decodedData = JSON.parse(decodeData(dashboardData));
+
+    res.json(decodedData);
   } catch (err) {
     next(err);
   }
