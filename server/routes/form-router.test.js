@@ -1,5 +1,12 @@
 const request = require("supertest");
 const app = require("../app");
+const {
+  checkJwt,
+  checkScopes,
+} = require("../middleware/authorizationMiddleware");
+const captchaCheck = require("../middleware/captchaCheck");
+jest.mock("../middleware/authorizationMiddleware");
+jest.mock("../middleware/captchaCheck");
 jest.mock("../db");
 
 const pool = require("../db");
@@ -9,6 +16,8 @@ describe("POST /", () => {
     jest.clearAllMocks();
   });
   it("should create a new item and return it", async () => {
+    checkJwt.mockImplementation((req, res, next) => next());
+    captchaCheck.mockImplementation((req, res, next) => next());
     pool.query.mockResolvedValueOnce({
       rows: [
         {
