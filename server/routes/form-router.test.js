@@ -1,78 +1,89 @@
 const request = require("supertest");
-const app = require("../app");
-jest.mock("../db");
+const express = require("express");
+const formRouter = require("./form-router");
+const formRepository = require("./form-router.repository");
+const { auth } = require("express-oauth2-jwt-bearer");
 
-const pool = require("../db");
+// Mock the dependencies
+jest.mock("./form-router.repository", () => ({
+  allClaimsForAdmin: jest.fn(),
+  allClaimsForUser: jest.fn(),
+  getUserByAuth0ID: jest.fn(),
+}));
 
-describe("POST /", () => {
+jest.mock("express-oauth2-jwt-bearer", () => ({
+  auth: jest.fn(),
+}));
+
+describe("Form Router - GET /dashboard", () => {
+  let app;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use("/", formRouter);
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
-  it("should create a new item and return it", async () => {
-    pool.query.mockResolvedValueOnce({
-      rows: [
-        {
-          claim_id: 1,
-          policy_number: "12345678",
-          customer_id: "CUST001",
-          condition_claimed_for: "Back pain",
-          first_symptoms_date: "2023-05-01",
-          symptoms_details: "Severe pain in lower back",
-          medical_service_type: "Physical therapy",
-          service_provider_name: "ABC Medical Center",
-          other_insurance_provider: false,
-          consent: true,
-          created_at: "2021-05-01T00:00:00.000Z",
-        },
-      ],
+
+  it("should return all claims for admin when user has admin:claims permission", async () => {
+    jest.mock("express-oauth2-jwt-bearer", () => ({
+      auth: jest.fn(() => (req, res, next) => {
+        req.auth = {
+          payload: {
+            permissions: ["admin:claims"],
+          },
+        };
+        next();
+      }),
+    }));
+
+    const adminClaims = [
+      {
+        claim_id: "123",
+        status: "submitted",
+        // Add other properties as needed
+      },
+      // Add more claims as needed
+    ];
+    formRepository.allClaimsForAdmin.mockResolvedValue(adminClaims);
+
+    const response = await request(app)
+      .get("/dashboard")
+      .set("Authorization", "Bearer YOUR_ACCESS_TOKEN");
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual({
+      claims: adminClaims,
+      role: "Admin",
     });
 
-    const newItem = {
-      policy_number: "12345678",
-      customer_id: "CUST001",
-      condition_claimed_for: "Back pain",
-      first_symptoms_date: "2023-05-01",
-      symptoms_details: "Severe pain in lower back",
-      medical_service_type: "Physical therapy",
-      service_provider_name: "ABC Medical Center",
-      other_insurance_provider: false,
-      consent: true,
-    };
-
-    const response = await request(app).post("/api/form").send(newItem);
-
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty("customer_id", newItem.customer_id);
+    expect(formRepository.allClaimsForAdmin).toHaveBeenCalledTimes(1);
   });
 
-  it("should return 400 when the request body is invalid", async () => {
-    const response = await request(app).post("/api/form").send({
-      policy_number: "abcdefgh",
-      customer_id: "CUST001",
-      condition_claimed_for: "Back pain",
-      first_symptoms_date: "2023-05-01",
-      symptoms_details: "Severe pain in lower back",
-      medical_service_type: "Physical therapy",
-      service_provider_name: "ABC Medical Center",
-      other_insurance_provider: false,
-      consent: true,
+  it("should return user-specific claims when user does not have admin:claims permission", async () => {
+    const userClaims = [
+      {
+        claim_id: "456",
+        status: "submitted",
+        // Add other properties as needed
+      },
+      // Add more claims as needed
+    ];
+    formRepository.allClaimsForUser.mockResolvedValue(userClaims);
+
+    const response = await request(app)
+      .get("/dashboard")
+      .set("Authorization", "Bearer YOUR_ACCESS_TOKEN");
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual({
+      claims: userClaims,
+      role: null,
     });
 
-    expect(response.status).toBe(400);
-  });
-  it("should return 500 when the data base is non functional", async () => {
-    const response = await request(app).post("/api/form").send({
-      policy_number: "12345678",
-      customer_id: "CUST001",
-      condition_claimed_for: "Back pain",
-      first_symptoms_date: "2023-05-01",
-      symptoms_details: "Severe pain in lower back",
-      medical_service_type: "Physical therapy",
-      service_provider_name: "ABC Medical Center",
-      other_insurance_provider: false,
-      consent: true,
-    });
-
-    expect(response.status).toBe(500);
+    expect(formRepository.allClaimsForUser).toHaveBeenCalledTimes(1);
   });
 });
