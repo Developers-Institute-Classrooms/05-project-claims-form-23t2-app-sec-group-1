@@ -1,0 +1,57 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Set up Docker
+        uses: docker/setup-docker@v1
+
+      - name: Load secrets
+        run: |
+          echo "${{ secrets.REACT_APP_API_SERVER_URL }}" >> .env
+          echo "${{ secrets.REACT_APP_AUTH0_DOMAIN }}" >> .env
+          echo "${{ secrets.REACT_APP_AUTH0_CLIENT_ID }}" >> .env
+          echo "${{ secrets.REACT_APP_AUTH0_CALLBACK_URL }}" >> .env
+          echo "${{ secrets.REACT_APP_AUTH0_AUDIENCE }}" >> .env
+          echo "${{ secrets.WDS_SOCKET_PORT }}" >> .env
+          echo "${{ secrets.REACT_APP_CAPTCHA }}" >> .env
+          echo "${{ secrets.PGDATABASE }}" >> .env
+          echo "${{ secrets.PGHOST }}" >> .env
+          echo "${{ secrets.PGPASSWORD }}" >> .env
+          echo "${{ secrets.PGUSER }}" >> .env
+          echo "${{ secrets.ISSUER_BASE_URL }}" >> .env
+          echo "${{ secrets.AUDIENCE }}" >> .env
+          echo "${{ secrets.API_KEY }}" >> .env
+
+      - name: Build and run containers
+        run: |
+          docker-compose build
+          docker-compose up -d
+
+      - name: Wait for services to start
+        run: docker-compose ps
+
+      - name: Run tests
+        run: |
+          docker-compose exec client npm test
+
+      - name: Tear down containers
+        run: docker-compose down
