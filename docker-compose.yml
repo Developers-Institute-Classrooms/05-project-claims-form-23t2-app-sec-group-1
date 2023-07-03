@@ -1,4 +1,5 @@
 version: '3'
+
 services:
     client:
         build:
@@ -10,14 +11,10 @@ services:
         volumes:
             - ./client:/app/
             - /app/node_modules
+            - ./client/.env.local:/app/.env.local
         environment:
-            - REACT_APP_API_SERVER_URL=${REACT_APP_API_SERVER_URL}
-            - REACT_APP_AUTH0_DOMAIN=${REACT_APP_AUTH0_DOMAIN}
-            - REACT_APP_AUTH0_CLIENT_ID=${REACT_APP_AUTH0_CLIENT_ID}
-            - REACT_APP_AUTH0_CALLBACK_URL=${REACT_APP_AUTH0_CALLBACK_URL}
-            - REACT_APP_AUTH0_AUDIENCE=${REACT_APP_AUTH0_AUDIENCE}
-            - WDS_SOCKET_PORT=${WDS_SOCKET_PORT}
-            - REACT_APP_CAPTCHA=${REACT_APP_CAPTCHA}
+            - FRONT=${{ secrets.FRONT }}
+
     server:
         build:
             context: ./server
@@ -28,6 +25,7 @@ services:
         volumes:
             - ./server:/app
             - /app/node_modules
+            - ./server/.env:/app/.env
         environment:
             - PGDATABASE=${PGDATABASE}
             - PGHOST=${PGHOST}
@@ -36,6 +34,7 @@ services:
             - ISSUER_BASE_URL=${ISSUER_BASE_URL}
             - AUDIENCE=${AUDIENCE}
             - API_KEY=${API_KEY}
+
     db:
         build:
             context: ./db
@@ -48,5 +47,6 @@ services:
             - PGHOST=${PGHOST}
             - PGPASSWORD=${PGPASSWORD}
             - PGUSER=${PGUSER}
+
 volumes:
     form-volume:
