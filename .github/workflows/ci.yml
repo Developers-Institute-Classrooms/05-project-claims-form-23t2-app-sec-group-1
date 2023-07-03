@@ -25,10 +25,10 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v1
 
-      - name: Load secrets
+      - name: Load FRONT and BACK secrets
         run: |
-          echo "FRONT=${{ secrets.FRONT }}" >> .env
-          echo "BACK=${{ secrets.BACK }}" >> .env
+          echo "${{ secrets.FRONT }}" > .env.front
+          echo "${{ secrets.BACK }}" > .env.back
 
       - name: Build and run containers
         run: |
