@@ -26,20 +26,8 @@ jobs:
 
       - name: Load secrets
         run: |
-          echo "${{ secrets.REACT_APP_API_SERVER_URL }}" >> .env
-          echo "${{ secrets.REACT_APP_AUTH0_DOMAIN }}" >> .env
-          echo "${{ secrets.REACT_APP_AUTH0_CLIENT_ID }}" >> .env
-          echo "${{ secrets.REACT_APP_AUTH0_CALLBACK_URL }}" >> .env
-          echo "${{ secrets.REACT_APP_AUTH0_AUDIENCE }}" >> .env
-          echo "${{ secrets.WDS_SOCKET_PORT }}" >> .env
-          echo "${{ secrets.REACT_APP_CAPTCHA }}" >> .env
-          echo "${{ secrets.PGDATABASE }}" >> .env
-          echo "${{ secrets.PGHOST }}" >> .env
-          echo "${{ secrets.PGPASSWORD }}" >> .env
-          echo "${{ secrets.PGUSER }}" >> .env
-          echo "${{ secrets.ISSUER_BASE_URL }}" >> .env
-          echo "${{ secrets.AUDIENCE }}" >> .env
-          echo "${{ secrets.API_KEY }}" >> .env
+          echo "FRONT=${{ secrets.FRONT }}" >> .env
+          echo "BACK=${{ secrets.BACK }}" >> .env
 
       - name: Build and run containers
         run: |
