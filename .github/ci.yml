@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '*'
+      - 'cipieline'
   pull_request:
     branches:
       - main
