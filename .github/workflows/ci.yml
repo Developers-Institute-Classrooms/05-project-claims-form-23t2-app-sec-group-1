@@ -23,7 +23,7 @@ jobs:
           node-version: 14
 
       - name: Set up Docker
-        uses: docker/setup-docker@v1
+        uses: docker/setup-buildx-action@v1
 
       - name: Load secrets
         run: |
