@@ -2,5 +2,10 @@
   "liveServer.settings.ignoreFiles": [
     "**/db/*"
   ],
-  "liveServer.settings.root": "/Submission"
+  "liveServer.settings.root": "/Submission",
+  "cSpell.words": [
+    "customerid",
+    "preexistingmedicalconditions",
+    "userpolicies"
+  ]
 }

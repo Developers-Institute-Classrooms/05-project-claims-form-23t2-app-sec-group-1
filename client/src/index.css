@@ -1,13 +1,200 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.btn-nav-dashboard,
+.button__logout,
+.button__login,
+.btn-nav-homepage,
+.btn-modal-close {
+  border: 0rem;
+  border-radius: 0.2rem;
+  padding: 0.3rem, 0.5rem;
+  color: #222222;
+  background-color: #fc7940;
+  margin-left: 2rem;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.privacy-statement {
+  color: #222222;
+  font-size: 1.5rem;
+  border: 0.1rem solid black;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  background-color: #f5cb42;
+}
+
+.btn-profile-edit,
+.btn-profile-save {
+  border-radius: 0.2rem;
+  background-color: #fc7940;
+  border: 0rem;
+  margin-left: 1rem;
+}
+
+.profile-item {
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
+}
+
+.modal-body {
+  text-transform: capitalize;
+}
+
+.profile-page {
+  border: 0.5rem solid #c91500;
+  border-radius: 1rem;
+  max-width: 80%;
+  margin-left: 10%;
+  padding: 1rem 0rem;
+}
+
+h2.client-dashboard,
+.formTitle {
+  text-align: center;
+}
+
+.claims-form {
+  width: 80%;
+  padding: 2rem;
+  border: 0.2rem solid #ff4d00;
+  border-radius: 2rem;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.profileEditInput {
+  width: 20rem;
+}
+
+input {
+  margin-bottom: 1rem;
+}
+
+p.errorMessage {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+img {
+  padding: 1rem;
+}
+
+p.footerText {
+  font-weight: bold;
+  color: #444444;
+}
+
+div.checkbox-wrapper {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+header,
+footer {
+  width: 100%;
+  text-align: center;
+  padding: 2rem;
+}
+
+label {
+  font-weight: bold;
+}
+
+.btn-success {
+  width: 10rem;
+  height: 3rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.btn-claim {
+  background-color: #fc7940;
+}
+
+.btn-profile {
+  background-color: #fc7940;
+}
+
+div.primary-container {
+  text-align: center;
+}
+
+p.disclaimer-paragraph {
+  background-color: lightgray;
+  font-style: italic;
+  border-color: black;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  border: 0.1rem solid black;
+  font-weight: 500;
+}
+
+hr.primary-divider {
+  border: 0.5rem solid #c91500;
+}
+
+.otherInsuranceProvider {
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+}
+
+.App-logo,
+.App-icon {
+  height: 15rem;
+  pointer-events: none;
+  align-items: center;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.homepage-body {
+  max-width: 80%;
+  padding-left: 20%;
+  text-align: center;
+}
+
+@media only screen and (min-width: 80rem) {
+  hr.primary-divider {
+    width: 75%;
+  }
+
+  .claims-form {
+    text-align: left;
+  }
+
+  .App-logo {
+    margin-right: 25%;
+  }
+
+  .App-icon {
+    margin-left: 25%;
+  }
+
+  .footerText {
+    margin-left: 25%;
+  }
+
+  .homepage-body {
+    text-align: left;
+  }
 }

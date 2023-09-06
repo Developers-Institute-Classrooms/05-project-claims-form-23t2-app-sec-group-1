@@ -1,0 +1,161 @@
+diff --git a/db/sql/01_database.sql b/db/sql/01_database.sql
+index 335e41b..09acb70 100644
+--- a/db/sql/01_database.sql
++++ b/db/sql/01_database.sql
+@@ -1,4 +1,33 @@
+-CREATE TABLE form(
+-  id SERIAL PRIMARY KEY,
+-  field_1 VARCHAR(255)
+-);
+\ No newline at end of file
++CREATE FUNCTION unique_random()
++RETURNS bigint AS $$
++DECLARE
++    r bigint;
++BEGIN
++    LOOP
++        -- Generate a random 10-digit number
++        r := floor(random() * (9999999999 - 1000000000 + 1) + 1000000000)::bigint;
++
++        -- Check if this number already exists in the table
++        IF NOT EXISTS(SELECT 1 FROM Claims WHERE claim_id = r) THEN
++            RETURN r;
++        END IF;
++    END LOOP;
++END;
++$$ LANGUAGE plpgsql;
++
++
++CREATE TABLE
++  Claims (
++    claim_id BIGINT DEFAULT unique_random() PRIMARY KEY,
++    status VARCHAR(255) DEFAULT 'submitted',
++    policy_number CHAR(8) CHECK (policy_number SIMILAR TO '[0-9]{8}'),
++    customer_id VARCHAR NOT NULL,
++    condition_claimed_for TEXT NOT NULL,
++    first_symptoms_date DATE NOT NULL,
++    symptoms_details TEXT NOT NULL,
++    medical_service_type VARCHAR(255) NOT NULL,
++    service_provider_name VARCHAR(255) NOT NULL,
++    other_insurance_provider BOOLEAN DEFAULT false,
++    consent BOOLEAN DEFAULT false,
++    created_at TIMESTAMP DEFAULT NOW ()
++  );
+diff --git a/db/sql/02_test_data.sql b/db/sql/02_test_data.sql
+index b26e61d..6ac36ce 100644
+--- a/db/sql/02_test_data.sql
++++ b/db/sql/02_test_data.sql
+@@ -1,2 +1,24 @@
+-INSERT INTO  form (field_1)
+-VALUES ('test value 1'), ('test value 2');
+\ No newline at end of file
++  INSERT INTO
++    Claims (
++         policy_number,
++         customer_id,
++         condition_claimed_for,
++         first_symptoms_date,
++         symptoms_details,
++         medical_service_type,
++         service_provider_name,
++         other_insurance_provider,
++        consent
++    )
++VALUES
++    (
++         '12345678',
++         'CUST001',
++         'Back pain',
++         '2022-01-01',
++         'Experienced sharp pain while lifting heavy object',
++         'Physical therapy',
++         'ABC Medical Center',
++         false,
++        true
++    );
+\ No newline at end of file
+diff --git a/docker-compose.yml b/docker-compose.yml
+index 241186f..240737a 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -17,11 +17,11 @@ services:
+             context: ./server            
+         ports:
+             - '5001:5000'
+-        environment:        
+-            - PGDATABASE=postgres            
+-            - PGHOST=db             
+-            - PGPASSWORD=password
+-            - PGUSER=postgres
++        # environment:        
++        #     - PGDATABASE=postgres            
++        #     - PGHOST=db             
++        #     - PGPASSWORD=password
++        #     - PGUSER=postgres
+         depends_on:             
+             - db
+         volumes:            
+diff --git a/server/.gitignore b/server/.gitignore
+index a60a181..2251045 100644
+--- a/server/.gitignore
++++ b/server/.gitignore
+@@ -3,7 +3,7 @@ node_modules
+ # In REAL LIFE exclude your .env file from your repo!!!!
+ # eg add .env to this gitignore
+ 
+-# .env
++.env
+ 
+ # dependencies
+ /node_modules
+\ No newline at end of file
+diff --git a/server/routes/form-router.js b/server/routes/form-router.js
+index e5ed0c2..eef2992 100644
+--- a/server/routes/form-router.js
++++ b/server/routes/form-router.js
+@@ -3,13 +3,36 @@ const pool = require("../db");
+ const formRouter = express.Router();
+ 
+ formRouter.get("/", async (req, res) => {
+-    console.log('hot reloaded!')
+-    try {
+-        const allItems = await pool.query("SELECT * FROM form");
+-        res.json(allItems.rows);
+-    } catch (err) {
+-        console.error(err.message);
+-    }
++  console.log("hot reloaded!");
++  try {
++    const allItems = await pool.query("SELECT * FROM form");
++    res.json(allItems.rows);
++  } catch (err) {
++    console.error(err.message);
++  }
+ });
+ 
+-module.exports = formRouter;
+\ No newline at end of file
++// create a post route
++formRouter.post("/", async (req, res) => {
++  try {
++    // const { name, email, message } = req.body;
++    const newItem = await pool.query(
++      `INSERT INTO Claims (policy_number, customer_id, condition_claimed_for,first_symptoms_date,symptoms_details,medical_service_type,service_provider_name,other_insurance_provider,consent)
++        VALUES ('98765432',
++        'CUST002',
++        'Broken leg',
++        '2023-04-30',
++        'Fractured tibia during a soccer game',
++        'Orthopedic surgery',
++        'XYZ Hospital',
++        true,
++        true)`
++    );
++
++    res.json("hello there");
++  } catch (err) {
++    console.error(err.message);
++  }
++});
++
++module.exports = formRouter;
